@@ -115,25 +115,3 @@ export const AUDIO = {
   DEFAULT_VOLUME: 0.7, // 70% volume
   FADE_STEP: 0.05, // Volume increment during fade (smoother = smaller steps)
 } as const;
-
-// Audio layer types
-export type AudioLayer = 'ambient' | 'music';
-
-// Map scenes to their audio tracks
-export const SCENE_AUDIO: Record<number, { ambient: string; music: string }> = {
-  0: { ambient: '/audio/ambient-1.mp3', music: '/audio/music-1.mp3' },
-  1: { ambient: '/audio/ambient-1.mp3', music: '/audio/music-1.mp3' },
-  2: { ambient: '/audio/ambient-1.mp3', music: '/audio/music-1.mp3' },
-  3: { ambient: '/audio/ambient-2.mp3', music: '/audio/music-2.mp3' },
-  4: { ambient: '/audio/ambient-2.mp3', music: '/audio/music-2.mp3' },
-  5: { ambient: '/audio/ambient-2.mp3', music: '/audio/music-2.mp3' },
-  6: { ambient: '/audio/ambient-1.mp3', music: '/audio/music-1.mp3' },
-  7: { ambient: '/audio/ambient-1.mp3', music: '/audio/music-1.mp3' },
-  8: { ambient: '/audio/ambient-2.mp3', music: '/audio/music-2.mp3' },
-  9: { ambient: '/audio/ambient-2.mp3', music: '/audio/music-2.mp3' },
-  10: { ambient: '/audio/ambient-1.mp3', music: '/audio/music-1.mp3' },
-  11: { ambient: '/audio/ambient-1.mp3', music: '/audio/music-1.mp3' },
-  12: { ambient: '/audio/ambient-2.mp3', music: '/audio/music-2.mp3' }, // video scene
-  13: { ambient: '/audio/ambient-1.mp3', music: '/audio/music-1.mp3' }, // video scene
-  14: { ambient: '/audio/ambient-2.mp3', music: '/audio/music-2.mp3' }, // video scene
-};
