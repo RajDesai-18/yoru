@@ -1,88 +1,84 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { SCENES, TIMING } from '@/lib/constants';
-import Scene from './Scene';
-import { useAudio } from '@/hooks/useAudio';
-import { useKeyboard } from '@/hooks/useKeyboard';
-import { SceneIndicator } from './SceneIndicator';
+import { useState } from "react";
+import Scene from "./Scene";
+import { SceneIndicator } from "./SceneIndicator";
+import { FXOverlay } from "./FXOverlay";
+import { Controls } from "@/components/ui/Controls";
+import { useKeyboard } from "@/hooks/useKeyboard";
+import { useAudio } from "@/hooks/useAudio";
+import { useIdleDetection } from "@/hooks/useIdleDetection";
+import { useFullscreen } from "@/hooks/useFullscreen";
+import { SCENES } from "@/lib/constants";
 
 export function SceneContainer() {
-    const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [ambientEnabled, setAmbientEnabled] = useState(true);
-    const [musicEnabled, setMusicEnabled] = useState(true);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [isControlsVisible, setIsControlsVisible] = useState(true);
 
-    // Audio system
-    const audio = useAudio({ sceneIndex: currentSceneIndex });
+    const audio = useAudio({ sceneIndex: currentIndex });
+    const { toggleFullscreen } = useFullscreen();
 
-    // Navigate to next scene
-    const nextScene = useCallback(() => {
-        setCurrentSceneIndex((prev) => (prev + 1) % SCENES.length);
-    }, []);
+    const nextScene = () => {
+        setCurrentIndex((prev) => (prev + 1) % SCENES.length);
+    };
 
-    // Navigate to previous scene
-    const previousScene = useCallback(() => {
-        setCurrentSceneIndex((prev) => (prev - 1 + SCENES.length) % SCENES.length);
-    }, []);
+    const prevScene = () => {
+        setCurrentIndex((prev) => (prev - 1 + SCENES.length) % SCENES.length);
+    };
 
-    // Handle play/pause toggle
-    const handleTogglePlay = useCallback(() => {
-        const newIsPlaying = audio.togglePlay();
-        setIsPlaying(newIsPlaying);
-    }, [audio]);
-
-    // Handle ambient toggle
-    const handleToggleAmbient = useCallback(() => {
-        const newEnabled = audio.toggleAmbient();
-        setAmbientEnabled(newEnabled);
-    }, [audio]);
-
-    // Handle music toggle
-    const handleToggleMusic = useCallback(() => {
-        const newEnabled = audio.toggleMusic();
-        setMusicEnabled(newEnabled);
-    }, [audio]);
-
-    // Keyboard navigation
-    useKeyboard({
-        onLeft: previousScene,
-        onRight: nextScene,
-        onSpace: handleTogglePlay,
-        onKeyA: handleToggleAmbient,
-        onKeyM: handleToggleMusic,
+    // Idle detection
+    useIdleDetection({
+        onIdle: () => setIsControlsVisible(false),
+        onActive: () => setIsControlsVisible(true),
+        timeout: 3000,
+        enabled: true,
     });
 
-    // Auto-cycle scenes
-    useEffect(() => {
-        const timer = setInterval(nextScene, TIMING.SCENE_DURATION);
-        return () => clearInterval(timer);
-    }, [nextScene]);
+    // Keyboard shortcuts
+    useKeyboard({
+        onSpace: () => audio.togglePlay(),
+        onLeft: prevScene,
+        onRight: nextScene,
+        onKeyA: () => audio.toggleAmbient(),
+        onKeyM: () => audio.toggleMusic(),
+        onKeyF: toggleFullscreen,
+    });
+
+    const handleVolumeChange = (value: number) => {
+        audio.setVolume(value);
+    };
 
     return (
-        <>
+        <div className="relative w-full h-screen overflow-hidden bg-black">
             {/* Scene layers */}
             <div className="fixed inset-0 w-full h-full bg-black overflow-hidden">
                 {SCENES.map((scene, index) => (
                     <Scene
                         key={scene.id}
                         scene={scene}
-                        isActive={index === currentSceneIndex}
+                        isActive={index === currentIndex}
                     />
                 ))}
             </div>
 
-            {/* Scene indicator dots */}
-            <SceneIndicator currentIndex={currentSceneIndex} />
+            <FXOverlay />
 
-            {/* Debug info - remove in production */}
-            <div className="fixed top-4 left-4 z-50 text-white/70 text-sm font-mono space-y-1">
-                <div>Scene: {currentSceneIndex + 1}/{SCENES.length}</div>
-                <div>{isPlaying ? '▶️ Playing' : '⏸️ Paused'} (Space)</div>
-                <div>🌿 Ambient: {ambientEnabled ? 'ON' : 'OFF'} (A)</div>
-                <div>🎵 Music: {musicEnabled ? 'ON' : 'OFF'} (M)</div>
-                <div className="text-white/40 pt-2">← → to change scenes</div>
-            </div>
-        </>
+            <SceneIndicator currentIndex={currentIndex} />
+
+            <Controls
+                isPlaying={audio.isPlaying}
+                isMuted={audio.isMuted}
+                volume={audio.volume}
+                isAmbientEnabled={audio.ambientEnabled}
+                isMusicEnabled={audio.musicEnabled}
+                isVisible={isControlsVisible}
+                onPlayPause={() => audio.togglePlay()}
+                onVolumeChange={handleVolumeChange}
+                onMuteToggle={() => audio.toggleMute()}
+                onAmbientToggle={() => audio.toggleAmbient()}
+                onMusicToggle={() => audio.toggleMusic()}
+                onFullscreen={toggleFullscreen}
+            />
+        </div>
     );
 }

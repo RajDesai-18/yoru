@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useCallback } from 'react';
-import { Howl } from 'howler';
-import { SCENES, AUDIO } from '@/lib/constants';
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Howl } from "howler";
+import { SCENES, AUDIO } from "@/lib/constants";
 
 interface UseAudioOptions {
   sceneIndex: number;
@@ -14,6 +14,14 @@ interface AudioLayers {
 }
 
 export function useAudio({ sceneIndex }: UseAudioOptions) {
+  const [isPlayingState, setIsPlayingState] = useState(false);
+  const [volumeState, setVolumeStateUpdate] = useState<number>(
+    AUDIO.DEFAULT_VOLUME
+  );
+  const [isMutedState, setIsMutedState] = useState(false);
+  const [ambientEnabledState, setAmbientEnabledState] = useState(true);
+  const [musicEnabledState, setMusicEnabledState] = useState(true);
+
   const audioRef = useRef<AudioLayers>({ ambient: null, music: null });
   const isPlayingRef = useRef(false);
   const volumeRef = useRef<number>(AUDIO.DEFAULT_VOLUME);
@@ -23,7 +31,10 @@ export function useAudio({ sceneIndex }: UseAudioOptions) {
   const prevSceneRef = useRef(sceneIndex);
   const isLoadedRef = useRef(false);
   const pendingPlayRef = useRef(false);
-  const pauseTimeoutRef = useRef<{ ambient?: NodeJS.Timeout; music?: NodeJS.Timeout }>({});
+  const pauseTimeoutRef = useRef<{
+    ambient?: NodeJS.Timeout;
+    music?: NodeJS.Timeout;
+  }>({});
 
   // Create a Howl instance
   const createHowl = useCallback((src: string, onLoad?: () => void): Howl => {
@@ -70,8 +81,9 @@ export function useAudio({ sceneIndex }: UseAudioOptions) {
     }
 
     isPlayingRef.current = true;
+    setIsPlayingState(true);
     pendingPlayRef.current = false;
-    console.log('▶️ Audio playing');
+    console.log("▶️ Audio playing");
   }, [fadeAudio]);
 
   // Load initial audio (runs once on mount)
@@ -82,17 +94,17 @@ export function useAudio({ sceneIndex }: UseAudioOptions) {
     const scene = SCENES[sceneIndex];
     if (!scene) return;
 
-    console.log('🎵 Loading audio:', scene.ambient, scene.music);
+    console.log("🎵 Loading audio:", scene.ambient, scene.music);
 
     let loadedCount = 0;
     const onLoad = () => {
       loadedCount++;
       if (loadedCount === 2) {
-        console.log('✅ Both tracks loaded');
+        console.log("✅ Both tracks loaded");
         isLoadedRef.current = true;
 
         if (pendingPlayRef.current) {
-          console.log('⏳ Pending play, starting...');
+          console.log("⏳ Pending play, starting...");
           setTimeout(startPlayback, 50);
         }
       }
@@ -102,14 +114,14 @@ export function useAudio({ sceneIndex }: UseAudioOptions) {
     audioRef.current.music = createHowl(scene.music, onLoad);
 
     return () => {
-      console.log('🧹 Cleanup: unloading audio');
+      console.log("🧹 Cleanup: unloading audio");
       audioRef.current.ambient?.unload();
       audioRef.current.music?.unload();
       audioRef.current = { ambient: null, music: null };
       isLoadedRef.current = false;
       pendingPlayRef.current = false;
     };
-  }, []);
+  }, [sceneIndex, createHowl, startPlayback]);
 
   // Handle scene changes with crossfade
   useEffect(() => {
@@ -123,7 +135,10 @@ export function useAudio({ sceneIndex }: UseAudioOptions) {
     const ambientChanged = prevScene?.ambient !== nextScene.ambient;
     const musicChanged = prevScene?.music !== nextScene.music;
 
-    console.log('🔄 Scene changed:', prevSceneRef.current, '→', sceneIndex, { ambientChanged, musicChanged });
+    console.log("🔄 Scene changed:", prevSceneRef.current, "→", sceneIndex, {
+      ambientChanged,
+      musicChanged,
+    });
 
     const volume = isMutedRef.current ? 0 : volumeRef.current;
 
@@ -167,7 +182,9 @@ export function useAudio({ sceneIndex }: UseAudioOptions) {
   // Play audio
   const play = useCallback(() => {
     if (!isLoadedRef.current) {
-      console.log('⏳ Audio not loaded, queuing...');
+      console.log("⏳ Audio not loaded, queuing...");
+      isPlayingRef.current = true;
+      setIsPlayingState(true);
       pendingPlayRef.current = true;
       return;
     }
@@ -195,23 +212,23 @@ export function useAudio({ sceneIndex }: UseAudioOptions) {
     }
 
     isPlayingRef.current = false;
-    console.log('⏸️ Audio paused');
+    setIsPlayingState(false);
+    console.log("⏸️ Audio paused");
   }, [fadeAudio]);
 
   // Toggle play/pause
   const togglePlay = useCallback(() => {
     if (isPlayingRef.current) {
       pause();
-      return false;
     } else {
       play();
-      return true;
     }
   }, [play, pause]);
 
   // Set volume (0-1)
   const setVolume = useCallback((vol: number) => {
     volumeRef.current = vol;
+    setVolumeStateUpdate(vol);
     if (!isMutedRef.current && isPlayingRef.current) {
       if (ambientEnabledRef.current) {
         audioRef.current.ambient?.volume(vol);
@@ -225,6 +242,7 @@ export function useAudio({ sceneIndex }: UseAudioOptions) {
   // Toggle mute
   const toggleMute = useCallback(() => {
     isMutedRef.current = !isMutedRef.current;
+    setIsMutedState(isMutedRef.current);
     const vol = isMutedRef.current ? 0 : volumeRef.current;
 
     if (ambientEnabledRef.current) {
@@ -234,13 +252,14 @@ export function useAudio({ sceneIndex }: UseAudioOptions) {
       audioRef.current.music?.volume(vol);
     }
 
-    console.log(isMutedRef.current ? '🔇 Muted' : '🔊 Unmuted');
+    console.log(isMutedRef.current ? "🔇 Muted" : "🔊 Unmuted");
     return isMutedRef.current;
   }, []);
 
   // Toggle ambient layer
   const toggleAmbient = useCallback(() => {
     ambientEnabledRef.current = !ambientEnabledRef.current;
+    setAmbientEnabledState(ambientEnabledRef.current);
     const ambient = audioRef.current.ambient;
 
     if (!ambient) return ambientEnabledRef.current;
@@ -249,11 +268,11 @@ export function useAudio({ sceneIndex }: UseAudioOptions) {
       ambient.volume(0);
       ambient.play();
       fadeAudio(ambient, isMutedRef.current ? 0 : volumeRef.current, 300);
-      console.log('🌿 Ambient enabled');
+      console.log("🌿 Ambient enabled");
     } else {
       fadeAudio(ambient, 0, 300);
       setTimeout(() => ambient.pause(), 300);
-      console.log('🌿 Ambient disabled');
+      console.log("🌿 Ambient disabled");
     }
 
     return ambientEnabledRef.current;
@@ -262,6 +281,7 @@ export function useAudio({ sceneIndex }: UseAudioOptions) {
   // Toggle music layer
   const toggleMusic = useCallback(() => {
     musicEnabledRef.current = !musicEnabledRef.current;
+    setMusicEnabledState(musicEnabledRef.current);
     const music = audioRef.current.music;
 
     if (!music) return musicEnabledRef.current;
@@ -270,11 +290,11 @@ export function useAudio({ sceneIndex }: UseAudioOptions) {
       music.volume(0);
       music.play();
       fadeAudio(music, isMutedRef.current ? 0 : volumeRef.current, 300);
-      console.log('🎵 Music enabled');
+      console.log("🎵 Music enabled");
     } else {
       fadeAudio(music, 0, 300);
       setTimeout(() => music.pause(), 300);
-      console.log('🎵 Music disabled');
+      console.log("🎵 Music disabled");
     }
 
     return musicEnabledRef.current;
@@ -288,12 +308,10 @@ export function useAudio({ sceneIndex }: UseAudioOptions) {
     toggleMute,
     toggleAmbient,
     toggleMusic,
-    getState: () => ({
-      isPlaying: isPlayingRef.current,
-      volume: volumeRef.current,
-      isMuted: isMutedRef.current,
-      ambientEnabled: ambientEnabledRef.current,
-      musicEnabled: musicEnabledRef.current,
-    }),
+    isPlaying: isPlayingState,
+    volume: volumeState,
+    isMuted: isMutedState,
+    ambientEnabled: ambientEnabledState,
+    musicEnabled: musicEnabledState,
   };
 }
