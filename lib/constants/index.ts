@@ -16,14 +16,6 @@ export const TIMING = {
   UI_FADE_DURATION: 300, // UI fade animation
 } as const;
 
-// Audio constants
-export const AUDIO = {
-  DEFAULT_VOLUME: 0.7,
-  MIN_VOLUME: 0,
-  MAX_VOLUME: 1,
-  VOLUME_STEP: 0.1,
-} as const;
-
 // Scene data - 12 static images + 3 videos
 export const SCENES: Scene[] = [
   // Video scenes (prioritize these for visual interest)
@@ -116,3 +108,10 @@ export const SCENES: Scene[] = [
     music: "/audio/music-1.mp3",
   },
 ];
+
+// Audio Configuration
+export const AUDIO = {
+  CROSSFADE_DURATION: 500, // ms - faster than visual fade for smoother transitions
+  DEFAULT_VOLUME: 0.7, // 70% volume
+  FADE_STEP: 0.05, // Volume increment during fade (smoother = smaller steps)
+} as const;
