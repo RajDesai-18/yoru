@@ -123,3 +123,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Yoru custom styles */
+@layer base {
+
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+  }
+}
