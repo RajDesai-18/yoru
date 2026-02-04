@@ -6,18 +6,30 @@ import Scene from "./Scene";
 import { useKeyboard } from "@/hooks/useKeyboard";
 import { SceneIndicator } from "./SceneIndicator";
 
-export function SceneContainer() {
+interface SceneContainerProps {
+    onSceneChange?: (index: number) => void;
+}
+
+export function SceneContainer({onSceneChange}: SceneContainerProps) {
     const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
 
     // Navigate to next scene
     const nextScene = useCallback(() => {
-        setCurrentSceneIndex((prev) => (prev + 1) % SCENES.length);
-    }, []);
+        setCurrentSceneIndex((prev) => {
+            const newIndex = (prev + 1) % SCENES.length;
+            onSceneChange?.(newIndex);
+            return newIndex;
+        });
+    }, [onSceneChange]);
 
     // Navigate to previous scene
     const previousScene = useCallback(() => {
-        setCurrentSceneIndex((prev) => (prev - 1 + SCENES.length) % SCENES.length);
-    }, []);
+        setCurrentSceneIndex((prev) => {
+            const newIndex = (prev - 1 + SCENES.length) % SCENES.length;
+            onSceneChange?.(newIndex);
+            return newIndex;
+        });
+    }, [onSceneChange]);
 
     // Keyboard navigation
     useKeyboard({
