@@ -4,6 +4,7 @@ import { SCENES, TIMING } from "@/lib/constants";
 import { useState, useEffect, useCallback } from "react";
 import Scene from "./Scene";
 import { useKeyboard } from "@/hooks/useKeyboard";
+import { SceneIndicator } from "./SceneIndicator";
 
 export function SceneContainer() {
     const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
@@ -12,7 +13,7 @@ export function SceneContainer() {
     const nextScene = useCallback(() => {
         setCurrentSceneIndex((prev) => (prev + 1) % SCENES.length);
     }, []);
-    
+
     // Navigate to previous scene
     const previousScene = useCallback(() => {
         setCurrentSceneIndex((prev) => (prev - 1 + SCENES.length) % SCENES.length);
@@ -30,14 +31,17 @@ export function SceneContainer() {
     }, [nextScene]);
 
     return (
-        <div className="fixed inset-0 w-full h-full bg-black overflow-hidden">
-            {SCENES.map((scene, index) => (
-                <Scene
-                    key={scene.id}
-                    scene={scene}
-                    isActive={index === currentSceneIndex}
-                />
-            ))}
-        </div>
+        <>
+            <div className="fixed inset-0 w-full h-full bg-black overflow-hidden">
+                {SCENES.map((scene, index) => (
+                    <Scene
+                        key={scene.id}
+                        scene={scene}
+                        isActive={index === currentSceneIndex}
+                    />
+                ))}
+            </div>
+            <SceneIndicator currentIndex={currentSceneIndex} />
+        </>
     );
 }
