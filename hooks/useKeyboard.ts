@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 interface UseKeyboardOptions {
   onLeft?: () => void;
@@ -8,6 +8,7 @@ interface UseKeyboardOptions {
   onSpace?: () => void;
   onKeyA?: () => void;
   onKeyM?: () => void;
+  onKeyF?: () => void;
 }
 
 export function useKeyboard({
@@ -16,6 +17,7 @@ export function useKeyboard({
   onSpace,
   onKeyA,
   onKeyM,
+  onKeyF,
 }: UseKeyboardOptions) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -28,34 +30,38 @@ export function useKeyboard({
       }
 
       switch (event.code) {
-        case 'ArrowLeft':
+        case "ArrowLeft":
           event.preventDefault();
           onLeft?.();
           break;
-        case 'ArrowRight':
+        case "ArrowRight":
           event.preventDefault();
           onRight?.();
           break;
-        case 'Space':
+        case "Space":
           event.preventDefault();
           onSpace?.();
           break;
-        case 'KeyA':
+        case "KeyA":
           event.preventDefault();
           onKeyA?.();
           break;
-        case 'KeyM':
+        case "KeyM":
           event.preventDefault();
           onKeyM?.();
+          break;
+        case "KeyF":
+          event.preventDefault();
+          onKeyF?.();
           break;
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    console.log('⌨️ Keyboard listener attached');
+    window.addEventListener("keydown", handleKeyDown);
+    console.log("⌨️ Keyboard listener attached");
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onLeft, onRight, onSpace, onKeyA, onKeyM]);
+  }, [onLeft, onRight, onSpace, onKeyA, onKeyM, onKeyF]);
 }
