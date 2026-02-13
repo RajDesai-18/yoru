@@ -1,117 +1,162 @@
-// Scene data structure
 export interface Scene {
   id: string;
   name: string;
   image: string;
   video?: string;
-  ambient: string;
-  music: string;
+  soundId: string;
 }
 
-// Timing constants (milliseconds)
 export const TIMING = {
-  SCENE_DURATION: 120000, // 2 minutes per scene
-  CROSSFADE_DURATION: 3000, // 3 second crossfade
-  IDLE_TIMEOUT: 5000, // 5 seconds of inactivity hides controls
-  UI_FADE_DURATION: 300, // UI fade animation
+  SCENE_DURATION: 120000,
+  CROSSFADE_DURATION: 3000,
+  IDLE_TIMEOUT: 5000,
+  UI_FADE_DURATION: 300,
 } as const;
 
-// Scene data - 12 static images + 3 videos
 export const SCENES: Scene[] = [
-  // Video scenes (prioritize these for visual interest)
+  // Rain — Light
   {
-    id: "scene-1",
-    name: "Scene 1",
-    image: "/scenes/scene-1.png",
-    video: "/scenes/scene-1.mp4",
-    ambient: "/audio/ambient-1.mp3",
-    music: "/audio/music-1.mp3",
+    id: "rain-1",
+    name: "Rain 1",
+    image: "/scenes/rain-1.png",
+    soundId: "rain-light",
   },
   {
-    id: "scene-2",
-    name: "Scene 2",
-    image: "/scenes/scene-2.png",
-    video: "/scenes/scene-2.mp4",
-    ambient: "/audio/ambient-1.mp3",
-    music: "/audio/music-1.mp3",
+    id: "rain-2",
+    name: "Rain 2",
+    image: "/scenes/rain-2.png",
+    soundId: "rain-light",
+  },
+  // Rain — Heavy
+  {
+    id: "rain-3",
+    name: "Rain 3",
+    image: "/scenes/rain-3.png",
+    soundId: "rain-heavy",
   },
   {
-    id: "scene-3",
-    name: "Scene 3",
-    image: "/scenes/scene-3.png",
-    video: "/scenes/scene-3.mp4",
-    ambient: "/audio/ambient-2.mp3",
-    music: "/audio/music-2.mp3",
+    id: "rain-4",
+    name: "Rain 4",
+    image: "/scenes/rain-4.png",
+    soundId: "rain-heavy",
   },
-  // Static image scenes
+  // Ocean / Water
   {
-    id: "scene-4",
-    name: "Scene 4",
-    image: "/scenes/scene-4.png",
-    ambient: "/audio/ambient-1.mp3",
-    music: "/audio/music-1.mp3",
+    id: "ocean-1",
+    name: "Ocean 1",
+    image: "/scenes/ocean-1.png",
+    soundId: "ocean-waves",
   },
   {
-    id: "scene-5",
-    name: "Scene 5",
-    image: "/scenes/scene-5.png",
-    ambient: "/audio/ambient-2.mp3",
-    music: "/audio/music-2.mp3",
+    id: "ocean-2",
+    name: "Ocean 2",
+    image: "/scenes/ocean-2.png",
+    soundId: "ocean-waves",
   },
   {
-    id: "scene-6",
-    name: "Scene 6",
-    image: "/scenes/scene-6.png",
-    ambient: "/audio/ambient-1.mp3",
-    music: "/audio/music-1.mp3",
+    id: "stream-1",
+    name: "Stream",
+    image: "/scenes/stream-1.png",
+    soundId: "stream",
   },
   {
-    id: "scene-7",
-    name: "Scene 7",
-    image: "/scenes/scene-7.png",
-    ambient: "/audio/ambient-2.mp3",
-    music: "/audio/music-2.mp3",
+    id: "waterfall-1",
+    name: "Waterfall",
+    image: "/scenes/waterfall-1.png",
+    soundId: "waterfall",
+  },
+  // Cozy
+  {
+    id: "fireplace-1",
+    name: "Fireplace 1",
+    image: "/scenes/fireplace-1.png",
+    soundId: "fireplace",
   },
   {
-    id: "scene-8",
-    name: "Scene 8",
-    image: "/scenes/scene-8.png",
-    ambient: "/audio/ambient-1.mp3",
-    music: "/audio/music-1.mp3",
+    id: "fireplace-2",
+    name: "Fireplace 2",
+    image: "/scenes/fireplace-2.png",
+    soundId: "fireplace",
   },
   {
-    id: "scene-9",
-    name: "Scene 9",
-    image: "/scenes/scene-9.png",
-    ambient: "/audio/ambient-2.mp3",
-    music: "/audio/music-2.mp3",
+    id: "coffee-shop-1",
+    name: "Coffee Shop 1",
+    image: "/scenes/coffee-shop-1.png",
+    soundId: "coffee-shop",
   },
   {
-    id: "scene-10",
-    name: "Scene 10",
-    image: "/scenes/scene-10.png",
-    ambient: "/audio/ambient-1.mp3",
-    music: "/audio/music-1.mp3",
+    id: "coffee-shop-2",
+    name: "Coffee Shop 2",
+    image: "/scenes/coffee-shop-2.png",
+    soundId: "coffee-shop",
+  },
+  // Nature / Night
+  {
+    id: "night-1",
+    name: "Night 1",
+    image: "/scenes/night-1.png",
+    soundId: "night",
   },
   {
-    id: "scene-11",
-    name: "Scene 11",
-    image: "/scenes/scene-11.png",
-    ambient: "/audio/ambient-2.mp3",
-    music: "/audio/music-2.mp3",
+    id: "night-2",
+    name: "Night 2",
+    image: "/scenes/night-2.png",
+    soundId: "night",
   },
   {
-    id: "scene-12",
-    name: "Scene 12",
-    image: "/scenes/scene-12.png",
-    ambient: "/audio/ambient-1.mp3",
-    music: "/audio/music-1.mp3",
+    id: "night-3",
+    name: "Night 3",
+    image: "/scenes/night-3.png",
+    soundId: "night",
+  },
+  {
+    id: "wind-1",
+    name: "Wind 1",
+    image: "/scenes/wind-1.png",
+    soundId: "wind",
+  },
+  {
+    id: "wind-2",
+    name: "Wind 2",
+    image: "/scenes/wind-2.png",
+    soundId: "wind",
+  },
+  // Atmospheric
+  {
+    id: "scifi-1",
+    name: "Sci-Fi 1",
+    image: "/scenes/scifi-1.png",
+    soundId: "scifi-ambience",
+  },
+  {
+    id: "scifi-2",
+    name: "Sci-Fi 2",
+    image: "/scenes/scifi-2.png",
+    soundId: "scifi-ambience",
+  },
+  {
+    id: "handpan-1",
+    name: "Handpan",
+    image: "/scenes/handpan-1.png",
+    soundId: "handpan",
+  },
+  {
+    id: "white-noise-1",
+    name: "White Noise",
+    image: "/scenes/white-noise-1.png",
+    soundId: "white-noise",
   },
 ];
 
-// Audio Configuration
 export const AUDIO = {
-  CROSSFADE_DURATION: 500, // ms - faster than visual fade for smoother transitions
-  DEFAULT_VOLUME: 0.7, // 70% volume
-  FADE_STEP: 0.05, // Volume increment during fade (smoother = smaller steps)
+  CROSSFADE_DURATION: 500,
+  DEFAULT_VOLUME: 0.7,
+  FADE_STEP: 0.05,
+} as const;
+
+export const AMBIENT = {
+  DEFAULT_VOLUME: 0.5,
+  CROSSFADE_DURATION: 300,
+  STORAGE_KEY: "yoru-ambient-sound",
+  VOLUME_STORAGE_KEY: "yoru-ambient-volume",
 } as const;

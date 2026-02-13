@@ -6,22 +6,19 @@ interface UseKeyboardOptions {
   onLeft?: () => void;
   onRight?: () => void;
   onSpace?: () => void;
-  onKeyA?: () => void;
-  onKeyM?: () => void;
   onKeyF?: () => void;
+  onKeyM?: () => void;
 }
 
 export function useKeyboard({
   onLeft,
   onRight,
   onSpace,
-  onKeyA,
-  onKeyM,
   onKeyF,
+  onKeyM,
 }: UseKeyboardOptions) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Ignore if user is typing in an input
       if (
         event.target instanceof HTMLInputElement ||
         event.target instanceof HTMLTextAreaElement
@@ -42,26 +39,20 @@ export function useKeyboard({
           event.preventDefault();
           onSpace?.();
           break;
-        case "KeyA":
+        case "KeyF":
           event.preventDefault();
-          onKeyA?.();
+          onKeyF?.();
           break;
         case "KeyM":
           event.preventDefault();
           onKeyM?.();
           break;
-        case "KeyF":
-          event.preventDefault();
-          onKeyF?.();
-          break;
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    console.log("⌨️ Keyboard listener attached");
-
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onLeft, onRight, onSpace, onKeyA, onKeyM, onKeyF]);
+  }, [onLeft, onRight, onSpace, onKeyF, onKeyM]);
 }
