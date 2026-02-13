@@ -58,6 +58,8 @@ export function SceneContainer() {
         onRight: nextScene,
         onKeyF: toggleFullscreen,
         onKeyM: () => ambient.toggleMute(),
+        onUp: () => ambient.setVolume(Math.min(ambient.volume + 0.1, 1)),
+        onDown: () => ambient.setVolume(Math.max(ambient.volume - 0.1, 0)),
     });
 
     useEffect(() => {

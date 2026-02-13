@@ -5,14 +5,19 @@ import { useEffect } from "react";
 interface UseKeyboardOptions {
   onLeft?: () => void;
   onRight?: () => void;
+  onUp?: () => void;
+  onDown?: () => void;
   onSpace?: () => void;
   onKeyF?: () => void;
   onKeyM?: () => void;
+
 }
 
 export function useKeyboard({
   onLeft,
   onRight,
+  onUp,
+  onDown,
   onSpace,
   onKeyF,
   onKeyM,
@@ -35,6 +40,14 @@ export function useKeyboard({
           event.preventDefault();
           onRight?.();
           break;
+        case "ArrowUp":
+          event.preventDefault();
+          onUp?.();
+          break;
+        case "ArrowDown":
+          event.preventDefault();
+          onDown?.();
+          break;
         case "Space":
           event.preventDefault();
           onSpace?.();
@@ -54,5 +67,5 @@ export function useKeyboard({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onLeft, onRight, onSpace, onKeyF, onKeyM]);
+  }, [onLeft, onRight, onUp, onDown, onSpace, onKeyF, onKeyM]);
 }

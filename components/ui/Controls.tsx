@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Play, Pause, Volume2, VolumeX, Maximize, Radio } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Maximize, Radio, Volume1 } from 'lucide-react';
 import { useState } from 'react';
 
 interface ControlsProps {
@@ -96,7 +96,13 @@ export function Controls({
                   className="text-white/80 hover:text-white hover:bg-white/10 transition-colors"
                   aria-label={isMuted ? 'Unmute' : 'Mute'}
                 >
-                  {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                  {isMuted || volume === 0 ? (
+                    <VolumeX className="h-5 w-5" />
+                  ) : volume <= 0.3 ? (
+                    <Volume1 className="h-5 w-5" />
+                  ) : (
+                    <Volume2 className="h-5 w-5" />
+                  )}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
