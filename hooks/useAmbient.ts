@@ -18,15 +18,16 @@ export function useAmbient({
 
   const [volume, setVolume] = useState(initialVolume);
   const [isMuted, setIsMuted] = useState(false);
-  
+  const [isPaused, setIsPaused] = useState(true);
 
   const howlRef = useRef<Howl | null>(null);
   const isPlayingRef = useRef(false);
   const volumeBeforeMuteRef = useRef(volume);
   const previousSoundRef = useRef<AmbientSoundId>("none");
 
-  const isPlaying = currentSound !== "none";
+  const isPlaying = currentSound !== "none" && !isPaused;
 
+  // Restore preferences from localStorage
   useEffect(() => {
     const storedSound = localStorage.getItem(AMBIENT.STORAGE_KEY);
     if (storedSound) {
@@ -85,11 +86,15 @@ export function useAmbient({
     });
 
     howlRef.current = howl;
-    howl.play();
-    howl.fade(0, targetVolume, AMBIENT.CROSSFADE_DURATION);
-    isPlayingRef.current = true;
+
+    if (!isPaused) {
+      howl.play();
+      howl.fade(0, targetVolume, AMBIENT.CROSSFADE_DURATION);
+      isPlayingRef.current = true;
+    }
+
     localStorage.setItem(AMBIENT.STORAGE_KEY, currentSound);
-  }, [currentSound]); // Only re-run when sound changes, not volume
+  }, [currentSound, isPaused]);
 
   // Handle volume changes (separate from sound loading)
   useEffect(() => {
@@ -100,19 +105,29 @@ export function useAmbient({
   }, [volume, isMuted]);
 
   const togglePlay = useCallback(() => {
-    if (isPlayingRef.current && currentSound !== "none") {
-      // Pause: remember what was playing, then stop
+    if (isPaused) {
+      setIsPaused(false);
+      if (currentSound === "none") {
+        const resumeTo =
+          previousSoundRef.current !== "none"
+            ? previousSoundRef.current
+            : "rain-light";
+        setCurrentSound(resumeTo);
+      } else {
+        // Sound is loaded but not playing — start it
+        if (howlRef.current) {
+          const targetVolume = isMuted ? 0 : volume;
+          howlRef.current.play();
+          howlRef.current.fade(0, targetVolume, AMBIENT.CROSSFADE_DURATION);
+          isPlayingRef.current = true;
+        }
+      }
+    } else if (currentSound !== "none") {
+      setIsPaused(true);
       previousSoundRef.current = currentSound;
       setCurrentSound("none");
-    } else {
-      // Resume: restore previous sound (or default to first real sound)
-      const resumeTo =
-        previousSoundRef.current !== "none"
-          ? previousSoundRef.current
-          : "rain-light";
-      setCurrentSound(resumeTo);
     }
-  }, [currentSound]);
+  }, [currentSound, isPaused, isMuted, volume]);
 
   const toggleMute = useCallback(() => {
     setIsMuted((prev) => {
@@ -128,9 +143,14 @@ export function useAmbient({
     });
   }, [volume]);
 
+  const changeSound = useCallback((soundId: AmbientSoundId) => {
+    setIsPaused(false);
+    setCurrentSound(soundId);
+  }, []);
+
   return {
     currentSound,
-    setCurrentSound,
+    setCurrentSound: changeSound,
     volume,
     setVolume,
     isMuted,

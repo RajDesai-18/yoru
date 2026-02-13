@@ -17,6 +17,7 @@ interface ControlsProps {
   onMuteToggle: () => void;
   onFullscreen: () => void;
   onAmbientSelectorToggle?: () => void;
+  onShortcutsToggle?: () => void;
 }
 
 export function Controls({
@@ -30,6 +31,7 @@ export function Controls({
   onMuteToggle,
   onFullscreen,
   onAmbientSelectorToggle,
+  onShortcutsToggle,
 }: ControlsProps) {
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
 
@@ -150,6 +152,27 @@ export function Controls({
               </TooltipTrigger>
               <TooltipContent>
                 <p>Ambient Sounds</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
+        {onShortcutsToggle && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onShortcutsToggle}
+                  className="text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                  aria-label="Keyboard shortcuts"
+                >
+                  <span className="text-sm font-medium">/</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Shortcuts (/)</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
