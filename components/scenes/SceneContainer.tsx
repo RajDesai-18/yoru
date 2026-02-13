@@ -12,6 +12,7 @@ import { Controls } from "@/components/ui/Controls";
 import { useIdleDetection } from "@/hooks/useIdleDetection";
 import { useFullscreen } from "@/hooks/useFullscreen";
 import { SCENES } from "@/lib/constants";
+import { getAmbientById } from "@/lib/audio/ambient";
 
 export function SceneContainer() {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -101,6 +102,7 @@ export function SceneContainer() {
                 onVolumeChange={(value) => ambient.setVolume(value)}
                 onMuteToggle={() => ambient.toggleMute()}
                 onFullscreen={toggleFullscreen}
+                currentSoundName={getAmbientById(ambient.currentSound).name}
                 onAmbientSelectorToggle={() =>
                     setShowAmbientSelector(!showAmbientSelector)
                 }
