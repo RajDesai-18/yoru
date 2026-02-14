@@ -183,7 +183,7 @@ export function SplashScreen({ isVisible, onEnter }: SplashScreenProps) {
               {!loaded ? (
                 <motion.p
                   key="loading"
-                  className="text-white/30 text-md tracking-[0.3em] uppercase"
+                  className="text-white/60 text-md tracking-[0.3em] uppercase"
                   style={{
                     fontFamily: "'Clash Display', sans-serif",
                     fontWeight: 600,
@@ -198,7 +198,7 @@ export function SplashScreen({ isVisible, onEnter }: SplashScreenProps) {
               ) : (
                 <motion.p
                   key="enter"
-                  className="text-white/30 text-md tracking-wide"
+                  className="text-white/60 ml-10 text-md tracking-[0.3em]"
                   style={{
                     fontFamily: "'Clash Display', sans-serif",
                     fontWeight: 600,
