@@ -12,15 +12,21 @@ import { Controls } from "@/components/ui/Controls";
 import { useIdleDetection } from "@/hooks/useIdleDetection";
 import { useFullscreen } from "@/hooks/useFullscreen";
 import { SCENES } from "@/lib/constants";
+import { getAmbientById } from "@/lib/audio/ambient";
+import { KeyboardShortcuts } from "@/components/ui/KeyboardShortcuts";
+import { SplashScreen } from "@/components/ui/SplashScreen";
 
 export function SceneContainer() {
+    const [showSplash, setShowSplash] = useState(true);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [manualOverride, setManualOverride] = useState(false);
     const [isControlsVisible, setIsControlsVisible] = useState(true);
     const [showAmbientSelector, setShowAmbientSelector] = useState(false);
 
+    const [showShortcuts, setShowShortcuts] = useState(false);
+
     const ambient = useAmbient();
-    
+
     useEffect(() => {
         if (manualOverride) return;
         const sceneIndex = SCENES.findIndex((s) => s.soundId === ambient.currentSound);
@@ -28,7 +34,7 @@ export function SceneContainer() {
             setCurrentIndex(sceneIndex);
         }
     }, [ambient.currentSound, manualOverride]);
-    
+
     const { toggleFullscreen } = useFullscreen();
     const ambientSelectorRef = useRef<HTMLDivElement>(null);
 
@@ -42,7 +48,7 @@ export function SceneContainer() {
         setCurrentIndex((prev) => (prev - 1 + SCENES.length) % SCENES.length);
     };
 
-    
+
 
     useIdleDetection({
         onIdle: () => setIsControlsVisible(false),
@@ -57,6 +63,9 @@ export function SceneContainer() {
         onRight: nextScene,
         onKeyF: toggleFullscreen,
         onKeyM: () => ambient.toggleMute(),
+        onUp: () => ambient.setVolume(Math.min(ambient.volume + 0.1, 1)),
+        onDown: () => ambient.setVolume(Math.max(ambient.volume - 0.1, 0)),
+        onSlash: () => setShowShortcuts((prev) => !prev),
     });
 
     useEffect(() => {
@@ -101,9 +110,11 @@ export function SceneContainer() {
                 onVolumeChange={(value) => ambient.setVolume(value)}
                 onMuteToggle={() => ambient.toggleMute()}
                 onFullscreen={toggleFullscreen}
+                currentSoundName={getAmbientById(ambient.currentSound).name}
                 onAmbientSelectorToggle={() =>
                     setShowAmbientSelector(!showAmbientSelector)
                 }
+                onShortcutsToggle={() => setShowShortcuts((prev) => !prev)}
             />
 
             <AmbientSelector
@@ -114,6 +125,14 @@ export function SceneContainer() {
                     ambient.setCurrentSound(soundId);
                 }}
                 isVisible={showAmbientSelector && isControlsVisible}
+            />
+            <KeyboardShortcuts
+                isVisible={showShortcuts}
+                onClose={() => setShowShortcuts(false)}
+            />
+            <SplashScreen
+                isVisible={showSplash}
+                onEnter={() => setShowSplash(false)}
             />
         </div>
     );

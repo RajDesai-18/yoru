@@ -5,17 +5,23 @@ import { useEffect } from "react";
 interface UseKeyboardOptions {
   onLeft?: () => void;
   onRight?: () => void;
+  onUp?: () => void;
+  onDown?: () => void;
   onSpace?: () => void;
   onKeyF?: () => void;
   onKeyM?: () => void;
+  onSlash?: () => void;
 }
 
 export function useKeyboard({
   onLeft,
   onRight,
+  onUp,
+  onDown,
   onSpace,
   onKeyF,
   onKeyM,
+  onSlash,
 }: UseKeyboardOptions) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -35,6 +41,14 @@ export function useKeyboard({
           event.preventDefault();
           onRight?.();
           break;
+        case "ArrowUp":
+          event.preventDefault();
+          onUp?.();
+          break;
+        case "ArrowDown":
+          event.preventDefault();
+          onDown?.();
+          break;
         case "Space":
           event.preventDefault();
           onSpace?.();
@@ -47,6 +61,12 @@ export function useKeyboard({
           event.preventDefault();
           onKeyM?.();
           break;
+        case "Slash":
+          if (event.shiftKey) {
+            event.preventDefault();
+            onSlash?.();
+          }
+          break;
       }
     };
 
@@ -54,5 +74,5 @@ export function useKeyboard({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onLeft, onRight, onSpace, onKeyF, onKeyM]);
+  }, [onLeft, onRight, onUp, onDown, onSpace, onKeyF, onKeyM, onSlash]);
 }
