@@ -1,7 +1,7 @@
 "use client";
 
 import { Scene as SceneType } from "@/lib/constants";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
 
@@ -12,6 +12,7 @@ interface SceneProps {
 
 export default function Scene({ scene, isActive }: SceneProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     if (!videoRef.current) return;
@@ -29,7 +30,7 @@ export default function Scene({ scene, isActive }: SceneProps) {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: isActive ? 1 : 0 }}
-      transition={{ duration: 3 }}
+      transition={{ duration: prefersReducedMotion ? 0 : 3 }}
       className="absolute inset-0 w-full h-full"
     >
       {scene.video ? (
