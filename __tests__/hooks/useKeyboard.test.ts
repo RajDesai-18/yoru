@@ -175,4 +175,15 @@ describe("useKeyboard", () => {
     expect(onLeft).toHaveBeenCalledTimes(1);
     expect(onUp).toHaveBeenCalledTimes(1);
   });
+
+  it("should call onKeyR when R key is pressed", () => {
+    const onKeyR = vi.fn();
+
+    renderHook(() => useKeyboard({ onKeyR }));
+
+    const event = new KeyboardEvent("keydown", { code: "KeyR" });
+    window.dispatchEvent(event);
+
+    expect(onKeyR).toHaveBeenCalledTimes(1);
+  });
 });

@@ -146,6 +146,7 @@ export function Controls({
               max={1}
               step={0.01}
               className="w-24"
+              aria-label="Volume"
             />
           </div>
         </div>
