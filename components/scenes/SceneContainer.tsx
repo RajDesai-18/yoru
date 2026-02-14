@@ -50,6 +50,11 @@ export function SceneContainer() {
     setCurrentIndex((prev) => (prev - 1 + SCENES.length) % SCENES.length);
   };
 
+  const handleReset = () => {
+    localStorage.clear();
+    window.location.reload();
+  };
+
   useIdleDetection({
     onIdle: () => setIsControlsVisible(false),
     onActive: () => setIsControlsVisible(true),
@@ -66,6 +71,7 @@ export function SceneContainer() {
     onUp: () => ambient.setVolume(Math.min(ambient.volume + 0.1, 1)),
     onDown: () => ambient.setVolume(Math.max(ambient.volume - 0.1, 0)),
     onSlash: () => setShowShortcuts((prev) => !prev),
+    onKeyR: handleReset,
   });
 
   useEffect(() => {
@@ -129,6 +135,7 @@ export function SceneContainer() {
       <KeyboardShortcuts
         isVisible={showShortcuts}
         onClose={() => setShowShortcuts(false)}
+        onReset={handleReset}
       />
       <SplashScreen
         isVisible={showSplash}

@@ -5,6 +5,7 @@ import { useEffect } from "react";
 interface KeyboardShortcutsProps {
   isVisible: boolean;
   onClose: () => void;
+  onReset: () => void;
 }
 
 const SHORTCUTS = [
@@ -16,11 +17,13 @@ const SHORTCUTS = [
   { key: "↑", action: "Volume Up" },
   { key: "↓", action: "Volume Down" },
   { key: "/", action: "Toggle Shortcuts" },
+  { key: "R", action: "Reset Preferences" },
 ];
 
 export function KeyboardShortcuts({
   isVisible,
   onClose,
+  onReset,
 }: KeyboardShortcutsProps) {
   useEffect(() => {
     if (!isVisible) return;
@@ -55,12 +58,19 @@ export function KeyboardShortcuts({
               className="flex items-center justify-between"
             >
               <span className="text-white/50 text-xs">{shortcut.action}</span>
-              <kbd className="bg-white/10 text-white/80 text-xs px-2 py-0.5 rounded min-w-[2rem] text-center">
+              <kbd className="bg-white/10 text-white/80 text-xs px-2 py-0.5 rounded min-w-8 text-center">
                 {shortcut.key}
               </kbd>
             </div>
           ))}
         </div>
+
+        <button
+          onClick={onReset}
+          className="mt-4 w-full text-xs text-white/40 hover:text-white/70 py-2 border border-white/10 hover:border-white/20 rounded-lg transition-colors"
+        >
+          Reset Preferences
+        </button>
       </div>
     </div>
   );
