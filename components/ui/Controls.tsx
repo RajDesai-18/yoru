@@ -1,10 +1,23 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Play, Pause, Volume2, VolumeX, Maximize, Radio, Volume1 } from 'lucide-react';
-import { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Maximize,
+  Radio,
+  Volume1,
+} from "lucide-react";
+import { useState } from "react";
 
 interface ControlsProps {
   isPlaying: boolean;
@@ -58,10 +71,9 @@ export function Controls({
         px-4 py-2
         flex items-center gap-3
         transition-all duration-500
-        ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}
+        ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8 pointer-events-none"}
       `}
       >
-
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -70,13 +82,17 @@ export function Controls({
                 size="icon"
                 onClick={onPlayPause}
                 className="text-white/80 hover:text-white hover:bg-white/10 transition-colors"
-                aria-label={isPlaying ? 'Pause' : 'Play'}
+                aria-label={isPlaying ? "Pause" : "Play"}
               >
-                {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+                {isPlaying ? (
+                  <Pause className="h-5 w-5" />
+                ) : (
+                  <Play className="h-5 w-5" />
+                )}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>{isPlaying ? 'Pause (Space)' : 'Play (Space)'}</p>
+              <p>{isPlaying ? "Pause (Space)" : "Play (Space)"}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -96,7 +112,7 @@ export function Controls({
                   size="icon"
                   onClick={onMuteToggle}
                   className="text-white/80 hover:text-white hover:bg-white/10 transition-colors"
-                  aria-label={isMuted ? 'Unmute' : 'Mute'}
+                  aria-label={isMuted ? "Unmute" : "Mute"}
                 >
                   {isMuted || volume === 0 ? (
                     <VolumeX className="h-5 w-5" />
@@ -108,7 +124,7 @@ export function Controls({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{isMuted ? 'Unmute (M)' : 'Mute (M)'}</p>
+                <p>{isMuted ? "Unmute (M)" : "Mute (M)"}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -116,7 +132,7 @@ export function Controls({
           <div
             className={`
             overflow-hidden transition-all duration-300
-            ${showVolumeSlider ? 'w-24 opacity-100' : 'w-0 opacity-0'}
+            ${showVolumeSlider ? "w-24 opacity-100" : "w-0 opacity-0"}
           `}
           >
             <Slider

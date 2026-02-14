@@ -74,7 +74,6 @@ export function useAmbient({
       html5: true,
       preload: true,
       onload: () => {
-        console.log(`✅ Ambient: ${soundConfig.name}`);
       },
       onloaderror: (_id, error) => {
         console.error(`❌ Failed to load: ${soundConfig.name}`, error);
@@ -138,7 +137,6 @@ export function useAmbient({
       } else {
         howlRef.current?.volume(volumeBeforeMuteRef.current);
       }
-      console.log(newMuted ? "🔇 Ambient muted" : "🔊 Ambient unmuted");
       return newMuted;
     });
   }, [volume]);

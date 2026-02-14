@@ -11,6 +11,7 @@ interface UseKeyboardOptions {
   onKeyF?: () => void;
   onKeyM?: () => void;
   onSlash?: () => void;
+  onKeyR?: () => void;
 }
 
 export function useKeyboard({
@@ -22,6 +23,7 @@ export function useKeyboard({
   onKeyF,
   onKeyM,
   onSlash,
+  onKeyR,
 }: UseKeyboardOptions) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -62,10 +64,12 @@ export function useKeyboard({
           onKeyM?.();
           break;
         case "Slash":
-          if (event.shiftKey) {
-            event.preventDefault();
-            onSlash?.();
-          }
+          event.preventDefault();
+          onSlash?.();
+          break;
+        case "KeyR":
+          event.preventDefault();
+          onKeyR?.();
           break;
       }
     };
@@ -74,5 +78,5 @@ export function useKeyboard({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onLeft, onRight, onUp, onDown, onSpace, onKeyF, onKeyM, onSlash]);
+  }, [onLeft, onRight, onUp, onDown, onSpace, onKeyF, onKeyM, onSlash, onKeyR]);
 }
