@@ -144,7 +144,7 @@ Tests cover all custom hooks: `useAmbient`, `useKeyboard`, `useIdleDetection`, a
 
 | Category | Score |
 |----------|-------|
-| Performance | 77 |
+| Performance | 85 |
 | Accessibility | 96 |
 | Best Practices | 100 |
 | SEO | 100 |
