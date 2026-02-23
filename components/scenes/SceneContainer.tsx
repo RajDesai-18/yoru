@@ -222,6 +222,7 @@ export function SceneContainer() {
       <MobileInstructions
         isVisible={showInstructions}
         onClose={handleCloseInstructions}
+        onReset={handleReset}
       />
       <SplashScreen
         isVisible={showSplash}

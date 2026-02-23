@@ -11,9 +11,14 @@ const STORAGE_KEY = "yoru-instructions-seen";
 interface MobileInstructionsProps {
     isVisible: boolean;
     onClose: () => void;
+    onReset: () => void;
 }
 
-export function MobileInstructions({ isVisible, onClose }: MobileInstructionsProps) {
+export function MobileInstructions({
+    isVisible,
+    onClose,
+    onReset,
+}: MobileInstructionsProps) {
     return (
         <AnimatePresence>
             {isVisible && (
@@ -48,19 +53,26 @@ export function MobileInstructions({ isVisible, onClose }: MobileInstructionsPro
                         </div>
 
                         <div className="space-y-4">
-                            <Instruction icon="👆" label="Tap left / right" detail="Change scenes" />
-                            <Instruction icon="👆" label="Tap center" detail="Show / hide controls" />
-                            <Instruction icon="👆↕" label="Swipe up / down" detail="Adjust volume" />
-                            <Instruction icon="🔊" label="Tap volume icon" detail="Show volume slider" />
-                            <Instruction icon="📻" label="Tap ambient icon" detail="Change sounds" />
+                            <Instruction symbol="←  →" label="Tap left / right" detail="Change scenes" />
+                            <Instruction symbol="●" label="Tap center" detail="Show / hide controls" />
+                            <Instruction symbol="↕" label="Swipe up / down" detail="Adjust volume" />
+                            <Instruction symbol="♪" label="Tap volume icon" detail="Show volume slider" />
+                            <Instruction symbol="◉" label="Tap ambient icon" detail="Change sounds" />
                         </div>
 
                         <button
                             onClick={onClose}
-                            className="mt-6 w-full text-xs text-white/50 hover:text-white/70 py-2.5 border border-white/10 hover:border-white/20 rounded-lg transition-colors tracking-wide uppercase"
+                            className="mt-6 w-full text-sm text-white/70 hover:text-white py-2.5 border border-white/15 hover:border-white/25 rounded-lg transition-colors tracking-wide uppercase"
                             style={{ fontFamily: "'Clash Display', sans-serif" }}
                         >
-                            Got it
+                            Understood
+                        </button>
+
+                        <button
+                            onClick={onReset}
+                            className="mt-2 w-full text-xs text-white/30 hover:text-white/50 py-2 transition-colors tracking-wide"
+                        >
+                            Reset Preferences
                         </button>
                     </div>
                 </motion.div>
@@ -69,10 +81,20 @@ export function MobileInstructions({ isVisible, onClose }: MobileInstructionsPro
     );
 }
 
-function Instruction({ icon, label, detail }: { icon: string; label: string; detail: string }) {
+function Instruction({
+    symbol,
+    label,
+    detail,
+}: {
+    symbol: string;
+    label: string;
+    detail: string;
+}) {
     return (
         <div className="flex items-center gap-3">
-            <span className="text-lg w-8 text-center">{icon}</span>
+            <span className="text-white/40 text-sm w-8 text-center font-mono">
+                {symbol}
+            </span>
             <div>
                 <p className="text-white/80 text-sm font-medium">{label}</p>
                 <p className="text-white/40 text-xs">{detail}</p>

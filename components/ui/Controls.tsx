@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { isTouchDevice } from "@/lib/utils/isTouchDevice";
+import { MobileVolumeSlider } from "@/components/ui/MobileVolumeSlider";
 
 interface ControlsProps {
   isPlaying: boolean;
@@ -59,14 +60,15 @@ export function Controls({
     setIsTouch(isTouchDevice());
   }, []);
 
-  // Auto-hide mobile volume slider after 3 seconds
+  // Auto-hide mobile volume slider after 3 seconds of no interaction
   useEffect(() => {
     if (!showMobileVolume) return;
     const timer = setTimeout(() => setShowMobileVolume(false), 3000);
     return () => clearTimeout(timer);
   }, [showMobileVolume, volume]);
 
-  const VolumeIcon = isMuted || volume === 0 ? VolumeX : volume <= 0.3 ? Volume1 : Volume2;
+  const VolumeIcon =
+    isMuted || volume === 0 ? VolumeX : volume <= 0.3 ? Volume1 : Volume2;
 
   return (
     <>
@@ -88,34 +90,11 @@ export function Controls({
 
       {/* Mobile vertical volume slider */}
       {isTouch && (
-        <div
-          className={`
-            fixed bottom-28 left-1/2 -translate-x-1/2 z-40
-            bg-black/50 backdrop-blur-md border border-white/10 rounded-2xl
-            px-3 py-4 flex flex-col items-center gap-2
-            transition-all duration-300
-            ${showMobileVolume && isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}
-          `}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <span className="text-white/50 text-[9px] tracking-wider uppercase mb-1">Vol</span>
-          <div className="h-24 flex items-center">
-            <Slider
-              value={[volume]}
-              onValueChange={(values) => {
-                const newVolume = values[0];
-                if (newVolume !== undefined) {
-                  onVolumeChange(newVolume);
-                }
-              }}
-              max={1}
-              step={0.01}
-              orientation="vertical"
-              className="h-24"
-            />
-          </div>
-          <span className="text-white/40 text-[9px]">{Math.round(volume * 100)}</span>
-        </div>
+        <MobileVolumeSlider
+          volume={volume}
+          onVolumeChange={onVolumeChange}
+          isVisible={showMobileVolume && isVisible}
+        />
       )}
 
       {/* Controls bar */}
@@ -157,7 +136,7 @@ export function Controls({
 
         <div className="w-px h-5 sm:h-6 bg-white/10" />
 
-        {/* Volume — mobile: tap to toggle vertical slider, desktop: hover expand */}
+        {/* Volume */}
         <div
           className="relative flex items-center gap-1 sm:gap-2"
           onMouseEnter={() => !isTouch && setShowVolumeSlider(true)}
@@ -296,7 +275,7 @@ export function Controls({
       {/* Attribution badge */}
       <div
         className={`
-          fixed bottom-1 right-2 sm:bottom-2 sm:right-3 z-20
+          fixed bottom-1 right-2 sm:bottom-1 sm:right-4 z-20
           text-white/25 text-[9px] sm:text-[10px] font-light tracking-wide
           pr-[env(safe-area-inset-right,0px)]
           pb-[env(safe-area-inset-bottom,0px)]
