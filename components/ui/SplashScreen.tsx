@@ -87,7 +87,10 @@ export function SplashScreen({ isVisible, onEnter }: SplashScreenProps) {
           }}
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: prefersReducedMotion ? 0 : 1.2, ease: "easeInOut" }}
+          transition={{
+            duration: prefersReducedMotion ? 0 : 1.2,
+            ease: "easeInOut",
+          }}
         >
           {/* SVG wave mask definition */}
           {!prefersReducedMotion && (
@@ -96,7 +99,11 @@ export function SplashScreen({ isVisible, onEnter }: SplashScreenProps) {
                 <mask id={maskId} maskContentUnits="objectBoundingBox">
                   <motion.g
                     animate={{ x: [0, -0.5] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                    transition={{
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
                   >
                     <rect
                       x="0"
@@ -138,7 +145,10 @@ export function SplashScreen({ isVisible, onEnter }: SplashScreenProps) {
             transition={
               zooming
                 ? { duration: 1.2, ease: [0.25, 0.1, 0.25, 1] }
-                : { duration: prefersReducedMotion ? 0 : 1, delay: prefersReducedMotion ? 0 : 0.3 }
+                : {
+                    duration: prefersReducedMotion ? 0 : 1,
+                    delay: prefersReducedMotion ? 0 : 0.3,
+                  }
             }
           >
             {prefersReducedMotion ? (

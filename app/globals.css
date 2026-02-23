@@ -150,7 +150,6 @@
 
 /* Yoru custom styles */
 @layer base {
-
   html,
   body {
     height: 100dvh;
@@ -160,7 +159,6 @@
 }
 
 @layer base {
-
   button,
   [role="button"],
   a,

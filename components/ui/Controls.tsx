@@ -239,6 +239,27 @@ export function Controls({
           </Tooltip>
         </TooltipProvider>
       </div>
+      {/* Attribution badge */}
+      <div
+        className={`
+          fixed bottom-1 right-2 sm:bottom-2 sm:right-3 z-20
+          text-white/25 text-[9px] sm:text-[10px] font-light tracking-wide
+          pr-[env(safe-area-inset-right,0px)]
+          pb-[env(safe-area-inset-bottom,0px)]
+          transition-all duration-500
+          ${isVisible ? "opacity-100" : "opacity-0 pointer-events-none"}
+        `}
+      >
+        Visuals AI-generated · Music via{" "}
+        <a
+          href="https://pixabay.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline underline-offset-2 hover:text-white/40 transition-colors"
+        >
+          Pixabay
+        </a>
+      </div>
     </>
   );
 }

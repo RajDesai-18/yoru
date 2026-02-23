@@ -62,7 +62,6 @@ export function SceneContainer() {
     (e: React.MouseEvent) => {
       if (!isTouchDevice()) return;
 
-      // Don't toggle if tapping on controls or ambient selector
       const target = e.target as HTMLElement;
       if (
         controlsRef.current?.contains(target) ||
@@ -71,7 +70,14 @@ export function SceneContainer() {
         return;
       }
 
-      // If ambient selector is open, close it instead of toggling controls
+      // Don't toggle if tapping on the backdrop (z-40 elements)
+      if (
+        target.closest("[class*='z-40']") ||
+        target.closest("[class*='z-50']")
+      ) {
+        return;
+      }
+
       if (showAmbientSelector) {
         setShowAmbientSelector(false);
         return;

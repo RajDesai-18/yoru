@@ -27,32 +27,32 @@ Yoru (夜, Japanese for "night") is an immersive ambient music experience featur
 
 ## 🎹 Keyboard Shortcuts
 
-| Key | Action |
-|-----|--------|
-| `Space` | Play / Pause |
-| `M` | Mute / Unmute |
-| `F` | Fullscreen |
-| `←` | Previous Scene |
-| `→` | Next Scene |
-| `↑` | Volume Up |
-| `↓` | Volume Down |
-| `/` | Toggle Shortcuts |
-| `R` | Reset Preferences |
+| Key     | Action            |
+| ------- | ----------------- |
+| `Space` | Play / Pause      |
+| `M`     | Mute / Unmute     |
+| `F`     | Fullscreen        |
+| `←`     | Previous Scene    |
+| `→`     | Next Scene        |
+| `↑`     | Volume Up         |
+| `↓`     | Volume Down       |
+| `/`     | Toggle Shortcuts  |
+| `R`     | Reset Preferences |
 
 ## 🛠 Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Framework | Next.js 16 (App Router, Turbopack) |
-| UI | React 19, TypeScript 5 |
-| Styling | Tailwind CSS 4 |
-| Animations | Framer Motion |
-| Audio | Howler.js |
-| Components | shadcn/ui (Radix UI primitives) |
-| Icons | Lucide React |
-| Font | Clash Display (self-hosted) |
-| Testing | Vitest, React Testing Library |
-| Linting | ESLint 9, Prettier |
+| Layer      | Technology                         |
+| ---------- | ---------------------------------- |
+| Framework  | Next.js 16 (App Router, Turbopack) |
+| UI         | React 19, TypeScript 5             |
+| Styling    | Tailwind CSS 4                     |
+| Animations | Framer Motion                      |
+| Audio      | Howler.js                          |
+| Components | shadcn/ui (Radix UI primitives)    |
+| Icons      | Lucide React                       |
+| Font       | Clash Display (self-hosted)        |
+| Testing    | Vitest, React Testing Library      |
+| Linting    | ESLint 9, Prettier                 |
 
 ## 🚀 Getting Started
 
@@ -142,12 +142,12 @@ Tests cover all custom hooks: `useAmbient`, `useKeyboard`, `useIdleDetection`, a
 
 ## 📊 Lighthouse Scores
 
-| Category | Score |
-|----------|-------|
-| Performance | 85 |
-| Accessibility | 96 |
-| Best Practices | 100 |
-| SEO | 100 |
+| Category       | Score |
+| -------------- | ----- |
+| Performance    | 85    |
+| Accessibility  | 96    |
+| Best Practices | 100   |
+| SEO            | 100   |
 
 ## 🎨 Visual Architecture
 
@@ -191,16 +191,16 @@ Contributions are welcome! If you'd like to contribute:
 
 ### Commit Convention
 
-| Type | When to Use |
-|------|-------------|
-| `feat` | New feature |
-| `fix` | Bug fix |
-| `refactor` | Code restructuring |
-| `test` | Adding or updating tests |
-| `style` | Formatting changes |
-| `docs` | Documentation only |
-| `chore` | Build process, dependencies |
-| `perf` | Performance improvement |
+| Type       | When to Use                 |
+| ---------- | --------------------------- |
+| `feat`     | New feature                 |
+| `fix`      | Bug fix                     |
+| `refactor` | Code restructuring          |
+| `test`     | Adding or updating tests    |
+| `style`    | Formatting changes          |
+| `docs`     | Documentation only          |
+| `chore`    | Build process, dependencies |
+| `perf`     | Performance improvement     |
 
 ## 📝 License
 
