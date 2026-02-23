@@ -1,9 +1,10 @@
 import { useEffect, useRef, useCallback } from "react";
+import { isTouchDevice } from "@/lib/utils/isTouchDevice";
 
 interface UseIdleDetectionOptions {
   onIdle: () => void;
   onActive: () => void;
-  timeout?: number; // milliseconds
+  timeout?: number;
   enabled?: boolean;
 }
 
@@ -17,18 +18,15 @@ export function useIdleDetection({
   const isIdleRef = useRef(false);
 
   const resetTimer = useCallback(() => {
-    // Clear existing timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
 
-    // If was idle, trigger active callback
     if (isIdleRef.current) {
       isIdleRef.current = false;
       onActive();
     }
 
-    // Set new timeout
     timeoutRef.current = setTimeout(() => {
       isIdleRef.current = true;
       onIdle();
@@ -37,7 +35,6 @@ export function useIdleDetection({
 
   useEffect(() => {
     if (!enabled) {
-      // Cleanup and trigger active state when disabled
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
@@ -48,17 +45,20 @@ export function useIdleDetection({
       return;
     }
 
-    // Start timer on mount
+    // On touch devices, skip mouse-based idle detection entirely.
+    // SceneContainer handles tap-to-toggle instead.
+    if (isTouchDevice()) {
+      return;
+    }
+
     resetTimer();
 
-    // Listen for user activity
-    const events = ["mousemove", "mousedown", "keydown", "touchstart", "wheel"];
+    const events = ["mousemove", "mousedown", "keydown", "wheel"];
 
     events.forEach((event) => {
       window.addEventListener(event, resetTimer);
     });
 
-    // Cleanup
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);

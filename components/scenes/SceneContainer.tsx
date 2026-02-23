@@ -1,12 +1,13 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Scene from "./Scene";
 import { SceneIndicator } from "./SceneIndicator";
 import { FXOverlay } from "./FXOverlay";
 import { useAmbient } from "@/hooks/useAmbient";
 import { useKeyboard } from "@/hooks/useKeyboard";
+import { useSwipe } from "@/hooks/useSwipe";
 import { AmbientSelector } from "@/components/ui/AmbientSelector";
 import { Controls } from "@/components/ui/Controls";
 import { useIdleDetection } from "@/hooks/useIdleDetection";
@@ -15,6 +16,7 @@ import { SCENES } from "@/lib/constants";
 import { getAmbientById } from "@/lib/audio/ambient";
 import { KeyboardShortcuts } from "@/components/ui/KeyboardShortcuts";
 import { SplashScreen } from "@/components/ui/SplashScreen";
+import { isTouchDevice } from "@/lib/utils/isTouchDevice";
 
 export function SceneContainer() {
   const [showSplash, setShowSplash] = useState(true);
@@ -22,7 +24,6 @@ export function SceneContainer() {
   const [manualOverride, setManualOverride] = useState(false);
   const [isControlsVisible, setIsControlsVisible] = useState(true);
   const [showAmbientSelector, setShowAmbientSelector] = useState(false);
-
   const [showShortcuts, setShowShortcuts] = useState(false);
 
   const ambient = useAmbient();
@@ -39,21 +40,53 @@ export function SceneContainer() {
 
   const { toggleFullscreen } = useFullscreen();
   const ambientSelectorRef = useRef<HTMLDivElement>(null);
+  const controlsRef = useRef<HTMLDivElement>(null);
 
-  const nextScene = () => {
+  const nextScene = useCallback(() => {
     setManualOverride(true);
     setCurrentIndex((prev) => (prev + 1) % SCENES.length);
-  };
+  }, []);
 
-  const prevScene = () => {
+  const prevScene = useCallback(() => {
     setManualOverride(true);
     setCurrentIndex((prev) => (prev - 1 + SCENES.length) % SCENES.length);
-  };
+  }, []);
 
   const handleReset = () => {
     localStorage.clear();
     window.location.reload();
   };
+
+  // Tap-to-toggle for touch devices
+  const handleSceneTap = useCallback(
+    (e: React.MouseEvent) => {
+      if (!isTouchDevice()) return;
+
+      // Don't toggle if tapping on controls or ambient selector
+      const target = e.target as HTMLElement;
+      if (
+        controlsRef.current?.contains(target) ||
+        ambientSelectorRef.current?.contains(target)
+      ) {
+        return;
+      }
+
+      // If ambient selector is open, close it instead of toggling controls
+      if (showAmbientSelector) {
+        setShowAmbientSelector(false);
+        return;
+      }
+
+      setIsControlsVisible((prev) => !prev);
+    },
+    [showAmbientSelector]
+  );
+
+  // Swipe navigation
+  const { onTouchStart, onTouchEnd } = useSwipe({
+    onSwipeLeft: nextScene,
+    onSwipeRight: prevScene,
+  });
 
   useIdleDetection({
     onIdle: () => setIsControlsVisible(false),
@@ -92,7 +125,12 @@ export function SceneContainer() {
   }, [showAmbientSelector]);
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-black">
+    <div
+      className="relative w-full h-dvh overflow-hidden bg-black"
+      onClick={handleSceneTap}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+    >
       <div className="fixed inset-0 w-full h-full bg-black overflow-hidden">
         {SCENES.map((scene, index) => (
           <Scene
@@ -107,21 +145,23 @@ export function SceneContainer() {
 
       <SceneIndicator currentIndex={currentIndex} />
 
-      <Controls
-        isPlaying={ambient.isPlaying}
-        isMuted={ambient.isMuted}
-        volume={ambient.volume}
-        isVisible={isControlsVisible}
-        onPlayPause={() => ambient.togglePlay()}
-        onVolumeChange={(value) => ambient.setVolume(value)}
-        onMuteToggle={() => ambient.toggleMute()}
-        onFullscreen={toggleFullscreen}
-        currentSoundName={getAmbientById(ambient.currentSound).name}
-        onAmbientSelectorToggle={() =>
-          setShowAmbientSelector(!showAmbientSelector)
-        }
-        onShortcutsToggle={() => setShowShortcuts((prev) => !prev)}
-      />
+      <div ref={controlsRef}>
+        <Controls
+          isPlaying={ambient.isPlaying}
+          isMuted={ambient.isMuted}
+          volume={ambient.volume}
+          isVisible={isControlsVisible}
+          onPlayPause={() => ambient.togglePlay()}
+          onVolumeChange={(value) => ambient.setVolume(value)}
+          onMuteToggle={() => ambient.toggleMute()}
+          onFullscreen={toggleFullscreen}
+          currentSoundName={getAmbientById(ambient.currentSound).name}
+          onAmbientSelectorToggle={() =>
+            setShowAmbientSelector(!showAmbientSelector)
+          }
+          onShortcutsToggle={() => setShowShortcuts((prev) => !prev)}
+        />
+      </div>
 
       <AmbientSelector
         ref={ambientSelectorRef}
