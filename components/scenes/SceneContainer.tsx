@@ -7,7 +7,6 @@ import { SceneIndicator } from "./SceneIndicator";
 import { FXOverlay } from "./FXOverlay";
 import { useAmbient } from "@/hooks/useAmbient";
 import { useKeyboard } from "@/hooks/useKeyboard";
-import { useSwipe } from "@/hooks/useSwipe";
 import { AmbientSelector } from "@/components/ui/AmbientSelector";
 import { Controls } from "@/components/ui/Controls";
 import { useIdleDetection } from "@/hooks/useIdleDetection";
@@ -57,7 +56,7 @@ export function SceneContainer() {
     window.location.reload();
   };
 
-  // Tap-to-toggle for touch devices
+  // Touch zones: left 30% = prev, right 30% = next, center 40% = toggle UI
   const handleSceneTap = useCallback(
     (e: React.MouseEvent) => {
       if (!isTouchDevice()) return;
@@ -70,11 +69,7 @@ export function SceneContainer() {
         return;
       }
 
-      // Don't toggle if tapping on the backdrop (z-40 elements)
-      if (
-        target.closest("[class*='z-40']") ||
-        target.closest("[class*='z-50']")
-      ) {
+      if (target.closest("[class*='z-40']") || target.closest("[class*='z-50']")) {
         return;
       }
 
@@ -83,16 +78,21 @@ export function SceneContainer() {
         return;
       }
 
-      setIsControlsVisible((prev) => !prev);
-    },
-    [showAmbientSelector]
-  );
+      const x = e.clientX;
+      const width = window.innerWidth;
+      const leftZone = width * 0.3;
+      const rightZone = width * 0.7;
 
-  // Swipe navigation
-  const { onTouchStart, onTouchEnd } = useSwipe({
-    onSwipeLeft: nextScene,
-    onSwipeRight: prevScene,
-  });
+      if (x < leftZone) {
+        prevScene();
+      } else if (x > rightZone) {
+        nextScene();
+      } else {
+        setIsControlsVisible((prev) => !prev);
+      }
+    },
+    [showAmbientSelector, nextScene, prevScene]
+  );
 
   useIdleDetection({
     onIdle: () => setIsControlsVisible(false),
@@ -134,8 +134,6 @@ export function SceneContainer() {
     <div
       className="relative w-full h-dvh overflow-hidden bg-black"
       onClick={handleSceneTap}
-      onTouchStart={onTouchStart}
-      onTouchEnd={onTouchEnd}
     >
       <div className="fixed inset-0 w-full h-full bg-black overflow-hidden">
         {SCENES.map((scene, index) => (
@@ -151,7 +149,7 @@ export function SceneContainer() {
 
       <SceneIndicator currentIndex={currentIndex} />
 
-      <div ref={controlsRef}>
+      <div ref={controlsRef} onClick={(e) => e.stopPropagation()}>
         <Controls
           isPlaying={ambient.isPlaying}
           isMuted={ambient.isMuted}

@@ -75,21 +75,24 @@ export function SplashScreen({ isVisible, onEnter }: SplashScreenProps) {
 
   const fillY = displayProgress >= 99 ? -5 : 100 - displayProgress;
   const maskId = "wave-fill-mask";
-  // Larger wave amplitude on mobile for better visual effect
   const waveAmp = 0.045;
 
-  const kanjiClasses =
-    "text-[9rem] sm:text-[12rem] md:text-[16rem] lg:text-[18rem] leading-none";
   const kanjiStyle = {
     fontFamily: "'Clash Display', sans-serif",
     fontWeight: 600 as const,
   };
+  const subtitleStyle = {
+    fontFamily: "'Clash Display', sans-serif",
+  };
+
+  // Mobile: use clip-path for fill animation (more reliable than SVG mask on iOS)
+  const clipPercent = Math.max(0, 100 - displayProgress);
 
   return (
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-black cursor-pointer px-4"
+          className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-black cursor-pointer"
           onClick={() => {
             if (loaded && !zooming) {
               if (prefersReducedMotion) {
@@ -107,8 +110,8 @@ export function SplashScreen({ isVisible, onEnter }: SplashScreenProps) {
             ease: "easeInOut",
           }}
         >
-          {/* SVG wave mask definition */}
-          {!prefersReducedMotion && (
+          {/* SVG wave mask — desktop only */}
+          {!prefersReducedMotion && !isTouch && (
             <svg className="absolute" width="0" height="0">
               <defs>
                 <mask id={maskId} maskContentUnits="objectBoundingBox">
@@ -150,7 +153,7 @@ export function SplashScreen({ isVisible, onEnter }: SplashScreenProps) {
             </svg>
           )}
 
-          {/* 夜 with wavy liquid fill + subtitle */}
+          {/* Kanji + subtitle */}
           <motion.div
             className="relative select-none flex flex-col items-center"
             initial={{ opacity: prefersReducedMotion ? 1 : 0 }}
@@ -166,22 +169,45 @@ export function SplashScreen({ isVisible, onEnter }: SplashScreenProps) {
                 }
             }
           >
-            {/* Kanji character */}
             <div className="relative">
               {prefersReducedMotion ? (
-                <p className={`text-white ${kanjiClasses}`} style={kanjiStyle}>
+                <p
+                  className="text-white text-[9rem] sm:text-[14rem] md:text-[18rem] lg:text-[22rem] leading-none"
+                  style={kanjiStyle}
+                >
                   夜
                 </p>
-              ) : (
+              ) : isTouch ? (
+                /* Mobile: clip-path based fill — no SVG mask issues */
                 <>
                   <p
-                    className={`text-white/10 ${kanjiClasses}`}
+                    className="text-white/10 text-[9rem] sm:text-[14rem] leading-none"
                     style={kanjiStyle}
                   >
                     夜
                   </p>
                   <p
-                    className={`absolute inset-0 text-white ${kanjiClasses}`}
+                    className="absolute inset-0 text-white text-[9rem] sm:text-[14rem] leading-none"
+                    style={{
+                      ...kanjiStyle,
+                      clipPath: `inset(${clipPercent}% 0 0 0)`,
+                      transition: "clip-path 0.3s ease-out",
+                    }}
+                  >
+                    夜
+                  </p>
+                </>
+              ) : (
+                /* Desktop: wave mask fill */
+                <>
+                  <p
+                    className="text-white/10 text-[9rem] sm:text-[14rem] md:text-[18rem] lg:text-[22rem] leading-none"
+                    style={kanjiStyle}
+                  >
+                    夜
+                  </p>
+                  <p
+                    className="absolute inset-0 text-white text-[9rem] sm:text-[14rem] md:text-[18rem] lg:text-[22rem] leading-none"
                     style={{
                       ...kanjiStyle,
                       mask: `url(#${maskId})`,
@@ -196,7 +222,7 @@ export function SplashScreen({ isVisible, onEnter }: SplashScreenProps) {
 
             {/* Romanji + English subtitle */}
             <motion.div
-              className="flex items-center gap-2 sm:gap-3 -mt-2 sm:mt-4"
+              className="flex items-center gap-3 sm:gap-4 mt-3 sm:mt-5"
               initial={{ opacity: 0 }}
               animate={zooming ? { opacity: 0 } : { opacity: 1 }}
               transition={{
@@ -206,54 +232,40 @@ export function SplashScreen({ isVisible, onEnter }: SplashScreenProps) {
             >
               <span
                 className="text-white/40 text-lg sm:text-xl tracking-[0.4em] uppercase"
-                style={{
-                  fontFamily: "'Clash Display', sans-serif",
-                  fontWeight: 500,
-                }}
+                style={{ ...subtitleStyle, fontWeight: 500 }}
               >
                 yoru
               </span>
-              <span className="text-white/15 text-lg sm:text-xl">|</span>
+              <span className="text-white/15 text-base sm:text-lg">·</span>
               <span
                 className="text-white/25 text-lg sm:text-xl tracking-[0.3em] uppercase"
-                style={{
-                  fontFamily: "'Clash Display', sans-serif",
-                  fontWeight: 400,
-                }}
+                style={{ ...subtitleStyle, fontWeight: 400 }}
               >
                 night
               </span>
             </motion.div>
           </motion.div>
 
-          {/* Percentage / Enter prompt */}
-          <div className="mt-6 sm:mt-8 h-6 flex items-center justify-center">
+          {/* Loading / Enter prompt */}
+          <div className="mt-8 sm:mt-10 h-6 flex items-center justify-center">
             <AnimatePresence mode="wait">
               {!loaded ? (
                 <motion.p
                   key="loading"
-                  className="text-white/60 text-xs sm:text-md tracking-[0.3em] uppercase"
-                  style={{
-                    fontFamily: "'Clash Display', sans-serif",
-                    fontWeight: 600,
-                  }}
+                  className="text-white/60 text-xs sm:text-sm tracking-[0.3em] uppercase"
+                  style={{ ...subtitleStyle, fontWeight: 600 }}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{
-                    duration: prefersReducedMotion ? 0 : 0.2,
-                  }}
+                  transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
                 >
                   Loading {displayProgress}%
                 </motion.p>
               ) : (
                 <motion.p
                   key="enter"
-                  className="text-white/60 text-xs sm:text-md tracking-[0.3em]"
-                  style={{
-                    fontFamily: "'Clash Display', sans-serif",
-                    fontWeight: 600,
-                  }}
+                  className="text-white/60 text-xs sm:text-sm tracking-[0.3em]"
+                  style={{ ...subtitleStyle, fontWeight: 600 }}
                   initial={{ opacity: 0 }}
                   animate={
                     zooming
