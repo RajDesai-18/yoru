@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -16,8 +17,10 @@ import {
   Maximize,
   Radio,
   Volume1,
+  Info,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { isTouchDevice } from "@/lib/utils/isTouchDevice";
 
 interface ControlsProps {
   isPlaying: boolean;
@@ -31,6 +34,7 @@ interface ControlsProps {
   onFullscreen: () => void;
   onAmbientSelectorToggle?: () => void;
   onShortcutsToggle?: () => void;
+  onInstructionsToggle?: () => void;
 }
 
 export function Controls({
@@ -45,8 +49,24 @@ export function Controls({
   onFullscreen,
   onAmbientSelectorToggle,
   onShortcutsToggle,
+  onInstructionsToggle,
 }: ControlsProps) {
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
+  const [showMobileVolume, setShowMobileVolume] = useState(false);
+  const [isTouch, setIsTouch] = useState(false);
+
+  useEffect(() => {
+    setIsTouch(isTouchDevice());
+  }, []);
+
+  // Auto-hide mobile volume slider after 3 seconds
+  useEffect(() => {
+    if (!showMobileVolume) return;
+    const timer = setTimeout(() => setShowMobileVolume(false), 3000);
+    return () => clearTimeout(timer);
+  }, [showMobileVolume, volume]);
+
+  const VolumeIcon = isMuted || volume === 0 ? VolumeX : volume <= 0.3 ? Volume1 : Volume2;
 
   return (
     <>
@@ -63,6 +83,38 @@ export function Controls({
           `}
         >
           {currentSoundName}
+        </div>
+      )}
+
+      {/* Mobile vertical volume slider */}
+      {isTouch && (
+        <div
+          className={`
+            fixed bottom-28 left-1/2 -translate-x-1/2 z-40
+            bg-black/50 backdrop-blur-md border border-white/10 rounded-2xl
+            px-3 py-4 flex flex-col items-center gap-2
+            transition-all duration-300
+            ${showMobileVolume && isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}
+          `}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span className="text-white/50 text-[9px] tracking-wider uppercase mb-1">Vol</span>
+          <div className="h-24 flex items-center">
+            <Slider
+              value={[volume]}
+              onValueChange={(values) => {
+                const newVolume = values[0];
+                if (newVolume !== undefined) {
+                  onVolumeChange(newVolume);
+                }
+              }}
+              max={1}
+              step={0.01}
+              orientation="vertical"
+              className="h-24"
+            />
+          </div>
+          <span className="text-white/40 text-[9px]">{Math.round(volume * 100)}</span>
         </div>
       )}
 
@@ -105,11 +157,11 @@ export function Controls({
 
         <div className="w-px h-5 sm:h-6 bg-white/10" />
 
-        {/* Volume */}
+        {/* Volume — mobile: tap to toggle vertical slider, desktop: hover expand */}
         <div
           className="relative flex items-center gap-1 sm:gap-2"
-          onMouseEnter={() => setShowVolumeSlider(true)}
-          onMouseLeave={() => setShowVolumeSlider(false)}
+          onMouseEnter={() => !isTouch && setShowVolumeSlider(true)}
+          onMouseLeave={() => !isTouch && setShowVolumeSlider(false)}
         >
           <TooltipProvider>
             <Tooltip>
@@ -117,17 +169,20 @@ export function Controls({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={onMuteToggle}
+                  onClick={() => {
+                    if (isTouch) {
+                      setShowMobileVolume((prev) => !prev);
+                    } else {
+                      onMuteToggle();
+                    }
+                  }}
+                  onDoubleClick={() => {
+                    if (isTouch) onMuteToggle();
+                  }}
                   className="text-white/80 hover:text-white hover:bg-white/10 transition-colors min-h-10 min-w-10 sm:min-h-11 sm:min-w-11"
                   aria-label={isMuted ? "Unmute" : "Mute"}
                 >
-                  {isMuted || volume === 0 ? (
-                    <VolumeX className="h-4 w-4 sm:h-5 sm:w-5" />
-                  ) : volume <= 0.3 ? (
-                    <Volume1 className="h-4 w-4 sm:h-5 sm:w-5" />
-                  ) : (
-                    <Volume2 className="h-4 w-4 sm:h-5 sm:w-5" />
-                  )}
+                  <VolumeIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -136,23 +191,7 @@ export function Controls({
             </Tooltip>
           </TooltipProvider>
 
-          {/* Mobile: always visible slider */}
-          <div className="w-16 sm:hidden">
-            <Slider
-              value={[volume]}
-              onValueChange={(values) => {
-                const newVolume = values[0];
-                if (newVolume !== undefined) {
-                  onVolumeChange(newVolume);
-                }
-              }}
-              max={1}
-              step={0.01}
-              className="w-16"
-            />
-          </div>
-
-          {/* Desktop: hover-expand slider */}
+          {/* Desktop: hover-expand horizontal slider */}
           <div
             className={`
               hidden sm:block overflow-hidden transition-all duration-300
@@ -196,6 +235,19 @@ export function Controls({
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
+        )}
+
+        {/* Instructions — mobile only */}
+        {isTouch && onInstructionsToggle && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onInstructionsToggle}
+            className="text-white/80 hover:text-white hover:bg-white/10 transition-colors min-h-10 min-w-10"
+            aria-label="Instructions"
+          >
+            <Info className="h-4 w-4" />
+          </Button>
         )}
 
         {/* Shortcuts — desktop only */}
@@ -253,15 +305,15 @@ export function Controls({
         `}
       >
         Visuals AI-generated · Music via{" "}
-        <a
-          href="https://pixabay.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline underline-offset-2 hover:text-white/40 transition-colors"
+<a
+        href="https://pixabay.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline underline-offset-2 hover:text-white/40 transition-colors"
         >
-          Pixabay
-        </a>
-      </div >
+        Pixabay
+      </a>
+    </div >
     </>
   );
 }

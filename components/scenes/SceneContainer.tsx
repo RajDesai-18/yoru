@@ -7,6 +7,7 @@ import { SceneIndicator } from "./SceneIndicator";
 import { FXOverlay } from "./FXOverlay";
 import { useAmbient } from "@/hooks/useAmbient";
 import { useKeyboard } from "@/hooks/useKeyboard";
+import { useSwipeVolume } from "@/hooks/useSwipeVolume";
 import { AmbientSelector } from "@/components/ui/AmbientSelector";
 import { Controls } from "@/components/ui/Controls";
 import { useIdleDetection } from "@/hooks/useIdleDetection";
@@ -15,6 +16,10 @@ import { SCENES } from "@/lib/constants";
 import { getAmbientById } from "@/lib/audio/ambient";
 import { KeyboardShortcuts } from "@/components/ui/KeyboardShortcuts";
 import { SplashScreen } from "@/components/ui/SplashScreen";
+import {
+  MobileInstructions,
+  useInstructionsSeen,
+} from "@/components/ui/MobileInstructions";
 import { isTouchDevice } from "@/lib/utils/isTouchDevice";
 
 export function SceneContainer() {
@@ -24,8 +29,19 @@ export function SceneContainer() {
   const [isControlsVisible, setIsControlsVisible] = useState(true);
   const [showAmbientSelector, setShowAmbientSelector] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(false);
 
   const ambient = useAmbient();
+  const { seen: instructionsSeen, markSeen: markInstructionsSeen } =
+    useInstructionsSeen();
+
+  // Show instructions automatically on first visit (after splash)
+  useEffect(() => {
+    if (!showSplash && !instructionsSeen && isTouchDevice()) {
+      const timer = setTimeout(() => setShowInstructions(true), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [showSplash, instructionsSeen]);
 
   useEffect(() => {
     if (manualOverride) return;
@@ -69,7 +85,10 @@ export function SceneContainer() {
         return;
       }
 
-      if (target.closest("[class*='z-40']") || target.closest("[class*='z-50']")) {
+      if (
+        target.closest("[class*='z-40']") ||
+        target.closest("[class*='z-50']")
+      ) {
         return;
       }
 
@@ -78,10 +97,14 @@ export function SceneContainer() {
         return;
       }
 
+      if (showInstructions) {
+        return;
+      }
+
       const x = e.clientX;
       const width = window.innerWidth;
-      const leftZone = width * 0.3;
-      const rightZone = width * 0.7;
+      const leftZone = width * 0.2;
+      const rightZone = width * 0.8;
 
       if (x < leftZone) {
         prevScene();
@@ -91,8 +114,15 @@ export function SceneContainer() {
         setIsControlsVisible((prev) => !prev);
       }
     },
-    [showAmbientSelector, nextScene, prevScene]
+    [showAmbientSelector, showInstructions, nextScene, prevScene]
   );
+
+  // Swipe up/down for volume
+  const { onTouchStart: volumeTouchStart, onTouchMove: volumeTouchMove } =
+    useSwipeVolume({
+      volume: ambient.volume,
+      onVolumeChange: (v) => ambient.setVolume(v),
+    });
 
   useIdleDetection({
     onIdle: () => setIsControlsVisible(false),
@@ -130,10 +160,17 @@ export function SceneContainer() {
     };
   }, [showAmbientSelector]);
 
+  const handleCloseInstructions = useCallback(() => {
+    setShowInstructions(false);
+    markInstructionsSeen();
+  }, [markInstructionsSeen]);
+
   return (
     <div
       className="relative w-full h-dvh overflow-hidden bg-black"
       onClick={handleSceneTap}
+      onTouchStart={volumeTouchStart}
+      onTouchMove={volumeTouchMove}
     >
       <div className="fixed inset-0 w-full h-full bg-black overflow-hidden">
         {SCENES.map((scene, index) => (
@@ -164,6 +201,7 @@ export function SceneContainer() {
             setShowAmbientSelector(!showAmbientSelector)
           }
           onShortcutsToggle={() => setShowShortcuts((prev) => !prev)}
+          onInstructionsToggle={() => setShowInstructions((prev) => !prev)}
         />
       </div>
 
@@ -180,6 +218,10 @@ export function SceneContainer() {
         isVisible={showShortcuts}
         onClose={() => setShowShortcuts(false)}
         onReset={handleReset}
+      />
+      <MobileInstructions
+        isVisible={showInstructions}
+        onClose={handleCloseInstructions}
       />
       <SplashScreen
         isVisible={showSplash}
