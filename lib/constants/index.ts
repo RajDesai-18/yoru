@@ -4,6 +4,7 @@ export interface Scene {
   image: string;
   video?: string;
   soundId: string;
+  objectPosition?: string;
 }
 
 export const TIMING = {
@@ -20,6 +21,7 @@ export const SCENES: Scene[] = [
     name: "Rain 1",
     image: "/scenes/rain-1.png",
     soundId: "rain-light",
+    objectPosition: "70% center",
   },
   {
     id: "rain-2",

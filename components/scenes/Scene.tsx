@@ -26,6 +26,8 @@ export default function Scene({ scene, isActive }: SceneProps) {
     }
   }, [isActive]);
 
+  const position = scene.objectPosition || "center";
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -42,6 +44,7 @@ export default function Scene({ scene, isActive }: SceneProps) {
           muted
           playsInline
           className="w-full h-full object-cover"
+          style={{ objectPosition: position }}
         />
       ) : (
         <Image
@@ -49,7 +52,9 @@ export default function Scene({ scene, isActive }: SceneProps) {
           alt={scene.name}
           fill
           priority={isActive}
+          sizes="100vw"
           className="object-cover"
+          style={{ objectPosition: position }}
         />
       )}
     </motion.div>
