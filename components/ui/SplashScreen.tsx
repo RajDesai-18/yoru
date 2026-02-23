@@ -9,6 +9,7 @@ import {
   useReducedMotion,
 } from "framer-motion";
 import { SCENES } from "@/lib/constants";
+import { isTouchDevice } from "@/lib/utils/isTouchDevice";
 
 interface SplashScreenProps {
   isVisible: boolean;
@@ -20,11 +21,16 @@ export function SplashScreen({ isVisible, onEnter }: SplashScreenProps) {
   const [loaded, setLoaded] = useState(false);
   const [assetsReady, setAssetsReady] = useState(false);
   const [zooming, setZooming] = useState(false);
+  const [isTouch, setIsTouch] = useState(false);
   const prefersReducedMotion = useReducedMotion();
 
   const rawProgress = useMotionValue(0);
   const smoothProgress = useSpring(rawProgress, { stiffness: 30, damping: 20 });
   const [displayProgress, setDisplayProgress] = useState(0);
+
+  useEffect(() => {
+    setIsTouch(isTouchDevice());
+  }, []);
 
   useEffect(() => {
     return smoothProgress.on("change", (v) => {
@@ -69,12 +75,21 @@ export function SplashScreen({ isVisible, onEnter }: SplashScreenProps) {
 
   const fillY = displayProgress >= 99 ? -5 : 100 - displayProgress;
   const maskId = "wave-fill-mask";
+  // Larger wave amplitude on mobile for better visual effect
+  const waveAmp = 0.045;
+
+  const kanjiClasses =
+    "text-[9rem] sm:text-[12rem] md:text-[16rem] lg:text-[18rem] leading-none";
+  const kanjiStyle = {
+    fontFamily: "'Clash Display', sans-serif",
+    fontWeight: 600 as const,
+  };
 
   return (
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-black cursor-pointer"
+          className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-black cursor-pointer px-4"
           onClick={() => {
             if (loaded && !zooming) {
               if (prefersReducedMotion) {
@@ -115,16 +130,16 @@ export function SplashScreen({ isVisible, onEnter }: SplashScreenProps) {
                     <path
                       d={`
                         M 0 ${fillY / 100}
-                        Q 0.05 ${fillY / 100 - 0.03} 0.1 ${fillY / 100}
-                        Q 0.15 ${fillY / 100 + 0.03} 0.2 ${fillY / 100}
-                        Q 0.25 ${fillY / 100 - 0.03} 0.3 ${fillY / 100}
-                        Q 0.35 ${fillY / 100 + 0.03} 0.4 ${fillY / 100}
-                        Q 0.45 ${fillY / 100 - 0.03} 0.5 ${fillY / 100}
-                        Q 0.55 ${fillY / 100 + 0.03} 0.6 ${fillY / 100}
-                        Q 0.65 ${fillY / 100 - 0.03} 0.7 ${fillY / 100}
-                        Q 0.75 ${fillY / 100 + 0.03} 0.8 ${fillY / 100}
-                        Q 0.85 ${fillY / 100 - 0.03} 0.9 ${fillY / 100}
-                        Q 0.95 ${fillY / 100 + 0.03} 1.0 ${fillY / 100}
+                        Q 0.05 ${fillY / 100 - waveAmp} 0.1 ${fillY / 100}
+                        Q 0.15 ${fillY / 100 + waveAmp} 0.2 ${fillY / 100}
+                        Q 0.25 ${fillY / 100 - waveAmp} 0.3 ${fillY / 100}
+                        Q 0.35 ${fillY / 100 + waveAmp} 0.4 ${fillY / 100}
+                        Q 0.45 ${fillY / 100 - waveAmp} 0.5 ${fillY / 100}
+                        Q 0.55 ${fillY / 100 + waveAmp} 0.6 ${fillY / 100}
+                        Q 0.65 ${fillY / 100 - waveAmp} 0.7 ${fillY / 100}
+                        Q 0.75 ${fillY / 100 + waveAmp} 0.8 ${fillY / 100}
+                        Q 0.85 ${fillY / 100 - waveAmp} 0.9 ${fillY / 100}
+                        Q 0.95 ${fillY / 100 + waveAmp} 1.0 ${fillY / 100}
                         L 1.0 0 L 0 0 Z
                       `}
                       fill="black"
@@ -135,9 +150,9 @@ export function SplashScreen({ isVisible, onEnter }: SplashScreenProps) {
             </svg>
           )}
 
-          {/* 夜 with wavy liquid fill */}
+          {/* 夜 with wavy liquid fill + subtitle */}
           <motion.div
-            className="relative select-none"
+            className="relative select-none flex flex-col items-center"
             initial={{ opacity: prefersReducedMotion ? 1 : 0 }}
             animate={
               zooming ? { opacity: 0, scale: 8 } : { opacity: 1, scale: 1 }
@@ -146,54 +161,78 @@ export function SplashScreen({ isVisible, onEnter }: SplashScreenProps) {
               zooming
                 ? { duration: 1.2, ease: [0.25, 0.1, 0.25, 1] }
                 : {
-                    duration: prefersReducedMotion ? 0 : 1,
-                    delay: prefersReducedMotion ? 0 : 0.3,
-                  }
+                  duration: prefersReducedMotion ? 0 : 1,
+                  delay: prefersReducedMotion ? 0 : 0.3,
+                }
             }
           >
-            {prefersReducedMotion ? (
-              <p
-                className="text-white text-[20rem] leading-none"
+            {/* Kanji character */}
+            <div className="relative">
+              {prefersReducedMotion ? (
+                <p className={`text-white ${kanjiClasses}`} style={kanjiStyle}>
+                  夜
+                </p>
+              ) : (
+                <>
+                  <p
+                    className={`text-white/10 ${kanjiClasses}`}
+                    style={kanjiStyle}
+                  >
+                    夜
+                  </p>
+                  <p
+                    className={`absolute inset-0 text-white ${kanjiClasses}`}
+                    style={{
+                      ...kanjiStyle,
+                      mask: `url(#${maskId})`,
+                      WebkitMask: `url(#${maskId})`,
+                    }}
+                  >
+                    夜
+                  </p>
+                </>
+              )}
+            </div>
+
+            {/* Romanji + English subtitle */}
+            <motion.div
+              className="flex items-center gap-2 sm:gap-3 -mt-2 sm:mt-4"
+              initial={{ opacity: 0 }}
+              animate={zooming ? { opacity: 0 } : { opacity: 1 }}
+              transition={{
+                duration: prefersReducedMotion ? 0 : 0.8,
+                delay: prefersReducedMotion ? 0 : 0.8,
+              }}
+            >
+              <span
+                className="text-white/40 text-lg sm:text-xl tracking-[0.4em] uppercase"
                 style={{
                   fontFamily: "'Clash Display', sans-serif",
-                  fontWeight: 600,
+                  fontWeight: 500,
                 }}
               >
-                夜
-              </p>
-            ) : (
-              <>
-                <p
-                  className="text-white/10 text-[20rem] leading-none"
-                  style={{
-                    fontFamily: "'Clash Display', sans-serif",
-                    fontWeight: 600,
-                  }}
-                >
-                  夜
-                </p>
-                <p
-                  className="absolute inset-0 text-white text-[20rem] leading-none"
-                  style={{
-                    fontFamily: "'Clash Display', sans-serif",
-                    fontWeight: 600,
-                    mask: `url(#${maskId})`,
-                    WebkitMask: `url(#${maskId})`,
-                  }}
-                >
-                  夜
-                </p>
-              </>
-            )}
+                yoru
+              </span>
+              <span className="text-white/15 text-lg sm:text-xl">|</span>
+              <span
+                className="text-white/25 text-lg sm:text-xl tracking-[0.3em] uppercase"
+                style={{
+                  fontFamily: "'Clash Display', sans-serif",
+                  fontWeight: 400,
+                }}
+              >
+                night
+              </span>
+            </motion.div>
           </motion.div>
 
           {/* Percentage / Enter prompt */}
-          <div className="mt-6 h-6 flex items-center justify-center">
+          <div className="mt-6 sm:mt-8 h-6 flex items-center justify-center">
             <AnimatePresence mode="wait">
               {!loaded ? (
                 <motion.p
                   key="loading"
-                  className="text-white/60 text-md tracking-[0.3em] uppercase"
+                  className="text-white/60 text-xs sm:text-md tracking-[0.3em] uppercase"
                   style={{
                     fontFamily: "'Clash Display', sans-serif",
                     fontWeight: 600,
@@ -201,14 +240,16 @@ export function SplashScreen({ isVisible, onEnter }: SplashScreenProps) {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
+                  transition={{
+                    duration: prefersReducedMotion ? 0 : 0.2,
+                  }}
                 >
                   Loading {displayProgress}%
                 </motion.p>
               ) : (
                 <motion.p
                   key="enter"
-                  className="text-white/60 ml-10 text-md tracking-[0.3em]"
+                  className="text-white/60 text-xs sm:text-md tracking-[0.3em]"
                   style={{
                     fontFamily: "'Clash Display', sans-serif",
                     fontWeight: 600,
@@ -229,7 +270,7 @@ export function SplashScreen({ isVisible, onEnter }: SplashScreenProps) {
                         : { duration: 2, repeat: Infinity }
                   }
                 >
-                  Click to enter
+                  {isTouch ? "Tap to enter" : "Click to enter"}
                 </motion.p>
               )}
             </AnimatePresence>

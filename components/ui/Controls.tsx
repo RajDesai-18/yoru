@@ -70,7 +70,7 @@ export function Controls({
         className={`
           fixed bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-30
           bg-black/40 backdrop-blur-md
-          border border-white/10 rounded-full
+          border border-white/10 rounded-xl
           px-2 sm:px-4 py-2
           flex items-center gap-1 sm:gap-3
           pb-[max(0.5rem,env(safe-area-inset-bottom,0.5rem))]
