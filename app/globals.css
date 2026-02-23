@@ -150,9 +150,23 @@
 
 /* Yoru custom styles */
 @layer base {
+
   html,
   body {
-    height: 100%;
+    height: 100dvh;
     overflow: hidden;
+    overscroll-behavior: none;
+  }
+}
+
+@layer base {
+
+  button,
+  [role="button"],
+  a,
+  input,
+  select,
+  textarea {
+    touch-action: manipulation;
   }
 }
