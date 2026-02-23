@@ -14,7 +14,7 @@ export function SceneIndicator({ currentIndex }: SceneIndicatorProps) {
     soundScenes.findIndex((s) => s.id === currentScene.id) + 1;
 
   return (
-    <div className="fixed bottom-2 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3">
+    < div className = "fixed bottom-1 sm:bottom-2 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 pb-[env(safe-area-inset-bottom,0px)]" >
       {/* Dots for scenes in current sound group */}
       <div className="flex gap-1.5">
         {soundScenes.map((scene, index) => (
