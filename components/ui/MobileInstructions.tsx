@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { X, Radio } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const STORAGE_KEY = "yoru-instructions-seen";
@@ -55,15 +55,16 @@ export function MobileInstructions({
                         <div className="space-y-4">
                             <Instruction symbol="←  →" label="Tap left / right" detail="Change scenes" />
                             <Instruction symbol="●" label="Tap Once" detail="Show / hide controls" />
+                            <Instruction symbol="●●" label="Double-tap center" detail="Play / pause" />
                             <Instruction symbol="↕" label="Swipe up / down" detail="Adjust volume" />
                             <Instruction symbol="♪" label="Tap volume icon" detail="Show volume slider" />
                             <Instruction symbol="●●" label="Tap volume icon" detail="Toggle mute" />
-                            <Instruction symbol="◉" label="Tap ambient icon" detail="Change sounds" />
+                            <Instruction symbol={<Radio className="h-4 w-4" />} label="Tap ambient icon" detail="Change sounds" />
                         </div>
 
                         <button
                             onClick={onClose}
-                            className="mt-6 w-full text-xs text-white/40 hover:text-white/60 py-2.5 border border-white/10 hover:border-white/20 rounded-lg transition-colors tracking-wide"
+                            className="mt-6 w-full text-xs text-white/40 hover:text-white/60 py-2.5 border border-white/10 hover:border-white/20 rounded-lg transition-colors tracking-wide uppercase"
                         >
                             Understood
                         </button>
@@ -86,13 +87,13 @@ function Instruction({
     label,
     detail,
 }: {
-    symbol: string;
+    symbol: React.ReactNode;
     label: string;
     detail: string;
 }) {
     return (
         <div className="flex items-center gap-3">
-            <span className="text-white/40 text-sm w-8 text-center font-mono">
+            <span className="text-white/40 text-sm w-8 text-center font-mono flex items-center justify-center">
                 {symbol}
             </span>
             <div>

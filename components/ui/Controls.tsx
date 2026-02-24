@@ -94,7 +94,7 @@ export function Controls({
         <MobileVolumeSlider
           volume={volume}
           onVolumeChange={onVolumeChange}
-          isVisible={(showMobileVolume || !!showSwipeVolume) && isVisible}
+          isVisible={showMobileVolume || !!showSwipeVolume}
         />
       )}
 

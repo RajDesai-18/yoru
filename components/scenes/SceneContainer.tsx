@@ -57,6 +57,9 @@ export function SceneContainer() {
   const { toggleFullscreen } = useFullscreen();
   const ambientSelectorRef = useRef<HTMLDivElement>(null);
   const controlsRef = useRef<HTMLDivElement>(null);
+  const lastTapRef = useRef(0);
+  const tapTimerRef = useRef<NodeJS.Timeout | null>(null);
+
 
   const nextScene = useCallback(() => {
     setManualOverride(true);
@@ -74,6 +77,7 @@ export function SceneContainer() {
   };
 
   // Touch zones: left 30% = prev, right 30% = next, center 40% = toggle UI
+  // Touch zones: left 20% = prev, right 80% = next, center = toggle UI / double-tap play
   const handleSceneTap = useCallback(
     (e: React.MouseEvent) => {
       if (!isTouchDevice()) return;
@@ -109,13 +113,35 @@ export function SceneContainer() {
 
       if (x < leftZone) {
         prevScene();
-      } else if (x > rightZone) {
+        return;
+      }
+
+      if (x > rightZone) {
         nextScene();
+        return;
+      }
+
+      // Center zone: single tap = toggle UI, double tap = play/pause
+      const now = Date.now();
+      const timeSinceLastTap = now - lastTapRef.current;
+      lastTapRef.current = now;
+
+      if (timeSinceLastTap < 300) {
+        // Double tap detected — cancel the single tap timer and play/pause
+        if (tapTimerRef.current) {
+          clearTimeout(tapTimerRef.current);
+          tapTimerRef.current = null;
+        }
+        ambient.togglePlay();
       } else {
-        setIsControlsVisible((prev) => !prev);
+        // Wait to see if a second tap comes
+        tapTimerRef.current = setTimeout(() => {
+          setIsControlsVisible((prev) => !prev);
+          tapTimerRef.current = null;
+        }, 300);
       }
     },
-    [showAmbientSelector, showInstructions, nextScene, prevScene]
+    [showAmbientSelector, showInstructions, nextScene, prevScene, ambient]
   );
 
   // Swipe up/down for volume — shows slider automatically
