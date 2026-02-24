@@ -28,6 +28,7 @@ interface ControlsProps {
   isMuted: boolean;
   volume: number;
   isVisible: boolean;
+  showSwipeVolume?: boolean;
   currentSoundName?: string;
   onPlayPause: () => void;
   onVolumeChange: (volume: number) => void;
@@ -37,7 +38,6 @@ interface ControlsProps {
   onShortcutsToggle?: () => void;
   onInstructionsToggle?: () => void;
 }
-
 export function Controls({
   isPlaying,
   isMuted,
@@ -51,6 +51,7 @@ export function Controls({
   onAmbientSelectorToggle,
   onShortcutsToggle,
   onInstructionsToggle,
+  showSwipeVolume,
 }: ControlsProps) {
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [showMobileVolume, setShowMobileVolume] = useState(false);
@@ -88,12 +89,12 @@ export function Controls({
         </div>
       )}
 
-      {/* Mobile vertical volume slider */}
+      {/* Mobile vertical volume slider — shows on tap OR swipe */}
       {isTouch && (
         <MobileVolumeSlider
           volume={volume}
           onVolumeChange={onVolumeChange}
-          isVisible={showMobileVolume && isVisible}
+          isVisible={(showMobileVolume || !!showSwipeVolume) && isVisible}
         />
       )}
 

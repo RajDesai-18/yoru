@@ -54,15 +54,16 @@ export function MobileInstructions({
 
                         <div className="space-y-4">
                             <Instruction symbol="←  →" label="Tap left / right" detail="Change scenes" />
-                            <Instruction symbol="●" label="Tap center" detail="Show / hide controls" />
+                            <Instruction symbol="●" label="Tap Once" detail="Show / hide controls" />
                             <Instruction symbol="↕" label="Swipe up / down" detail="Adjust volume" />
                             <Instruction symbol="♪" label="Tap volume icon" detail="Show volume slider" />
+                            <Instruction symbol="●●" label="Tap volume icon" detail="Toggle mute" />
                             <Instruction symbol="◉" label="Tap ambient icon" detail="Change sounds" />
                         </div>
 
                         <button
                             onClick={onClose}
-                            className="mt-6 w-full text-xs text-white/40 hover:text-white/60 py-2.5 border border-white/10 hover:border-white/20 rounded-lg transition-colors tracking-wide uppercase"
+                            className="mt-6 w-full text-xs text-white/40 hover:text-white/60 py-2.5 border border-white/10 hover:border-white/20 rounded-lg transition-colors tracking-wide"
                         >
                             Understood
                         </button>

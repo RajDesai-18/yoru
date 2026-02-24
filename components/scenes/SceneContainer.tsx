@@ -30,7 +30,8 @@ export function SceneContainer() {
   const [showAmbientSelector, setShowAmbientSelector] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
-
+  const [showSwipeVolume, setShowSwipeVolume] = useState(false);
+  
   const ambient = useAmbient();
   const { seen: instructionsSeen, markSeen: markInstructionsSeen } =
     useInstructionsSeen();
@@ -117,11 +118,35 @@ export function SceneContainer() {
     [showAmbientSelector, showInstructions, nextScene, prevScene]
   );
 
-  // Swipe up/down for volume
+  // Swipe up/down for volume — shows slider automatically
+  const swipeVolumeTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleSwipeVolumeStart = useCallback(() => {
+    setShowSwipeVolume(true);
+    if (swipeVolumeTimerRef.current) {
+      clearTimeout(swipeVolumeTimerRef.current);
+    }
+  }, []);
+
+  const handleSwipeVolumeChange = useCallback(
+    (v: number) => {
+      ambient.setVolume(v);
+      // Reset auto-hide timer on each change
+      if (swipeVolumeTimerRef.current) {
+        clearTimeout(swipeVolumeTimerRef.current);
+      }
+      swipeVolumeTimerRef.current = setTimeout(() => {
+        setShowSwipeVolume(false);
+      }, 1500);
+    },
+    [ambient]
+  );
+
   const { onTouchStart: volumeTouchStart, onTouchMove: volumeTouchMove } =
     useSwipeVolume({
       volume: ambient.volume,
-      onVolumeChange: (v) => ambient.setVolume(v),
+      onVolumeChange: handleSwipeVolumeChange,
+      onSwipeStart: handleSwipeVolumeStart,
     });
 
   useIdleDetection({
@@ -192,6 +217,7 @@ export function SceneContainer() {
           isMuted={ambient.isMuted}
           volume={ambient.volume}
           isVisible={isControlsVisible}
+          showSwipeVolume={showSwipeVolume}
           onPlayPause={() => ambient.togglePlay()}
           onVolumeChange={(value) => ambient.setVolume(value)}
           onMuteToggle={() => ambient.toggleMute()}
