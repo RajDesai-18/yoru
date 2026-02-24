@@ -7,7 +7,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 export default function Home() {
   return (
     <ErrorBoundary>
-      <main className="relative w-screen h-screen overflow-hidden">
+      <main className="relative w-screen min-h-dvh h-full overflow-hidden">
         <SceneContainer />
         <FXOverlay />
       </main>

@@ -2,8 +2,10 @@ export interface Scene {
   id: string;
   name: string;
   image: string;
+  mobileImage?: string;
   video?: string;
   soundId: string;
+  objectPosition?: string;
 }
 
 export const TIMING = {
@@ -19,7 +21,9 @@ export const SCENES: Scene[] = [
     id: "rain-1",
     name: "Rain 1",
     image: "/scenes/rain-1.png",
+    mobileImage: "/scenes/rain-1-mobile.png",
     soundId: "rain-light",
+    objectPosition: "70% center",
   },
   {
     id: "rain-2",
@@ -32,6 +36,7 @@ export const SCENES: Scene[] = [
     id: "rain-3",
     name: "Rain 3",
     image: "/scenes/rain-3.png",
+    mobileImage: "/scenes/rain-3-mobile.png",
     soundId: "rain-heavy",
   },
   {
@@ -57,12 +62,14 @@ export const SCENES: Scene[] = [
     id: "stream-1",
     name: "Stream",
     image: "/scenes/stream-1.png",
+    mobileImage: "/scenes/stream-1-mobile.png",
     soundId: "stream",
   },
   {
     id: "waterfall-1",
     name: "Waterfall",
     image: "/scenes/waterfall-1.png",
+    mobileImage: "/scenes/waterfall-1-mobile.png",
     soundId: "waterfall",
   },
   // Cozy
@@ -70,6 +77,7 @@ export const SCENES: Scene[] = [
     id: "fireplace-1",
     name: "Fireplace 1",
     image: "/scenes/fireplace-1.png",
+    mobileImage: "/scenes/fireplace-1-mobile.png",
     soundId: "fireplace",
   },
   {
@@ -82,6 +90,7 @@ export const SCENES: Scene[] = [
     id: "coffee-shop-1",
     name: "Coffee Shop 1",
     image: "/scenes/coffee-shop-1.png",
+    mobileImage: "/scenes/coffee-shop-1-mobile.png",
     soundId: "coffee-shop",
   },
   {
@@ -101,6 +110,7 @@ export const SCENES: Scene[] = [
     id: "night-2",
     name: "Night 2",
     image: "/scenes/night-2.png",
+    mobileImage: "/scenes/night-2-mobile.png",
     soundId: "night",
   },
   {
@@ -113,12 +123,14 @@ export const SCENES: Scene[] = [
     id: "wind-1",
     name: "Wind 1",
     image: "/scenes/wind-1.png",
+    mobileImage: "/scenes/wind-1-mobile.png",
     soundId: "wind",
   },
   {
     id: "wind-2",
     name: "Wind 2",
     image: "/scenes/wind-2.png",
+    mobileImage: "/scenes/wind-2-mobile.png",
     soundId: "wind",
   },
   // Atmospheric
@@ -126,6 +138,7 @@ export const SCENES: Scene[] = [
     id: "scifi-1",
     name: "Sci-Fi 1",
     image: "/scenes/scifi-1.png",
+    mobileImage: "/scenes/scifi-1-mobile.png",
     soundId: "scifi-ambience",
   },
   {

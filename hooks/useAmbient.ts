@@ -73,8 +73,7 @@ export function useAmbient({
       volume: 0,
       html5: true,
       preload: true,
-      onload: () => {
-      },
+      onload: () => {},
       onloaderror: (_id, error) => {
         console.error(`❌ Failed to load: ${soundConfig.name}`, error);
         setCurrentSound("none");
