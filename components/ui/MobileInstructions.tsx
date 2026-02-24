@@ -64,9 +64,9 @@ export function MobileInstructions({
 
                         <button
                             onClick={onClose}
-                            className="mt-6 w-full text-xs text-white/40 hover:text-white/60 py-2.5 border border-white/10 hover:border-white/20 rounded-lg transition-colors tracking-wide uppercase"
+                            className="mt-6 w-full text-xs text-white/40 hover:text-white/60 py-2.5 border border-white/10 hover:border-white/20 rounded-lg transition-colors tracking-wide"
                         >
-                            Understood
+                            Dive In
                         </button>
 
                         <button

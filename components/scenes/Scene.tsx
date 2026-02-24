@@ -3,7 +3,7 @@
 import { Scene as SceneType } from "@/lib/constants";
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface SceneProps {
   scene: SceneType;
@@ -13,6 +13,17 @@ interface SceneProps {
 export default function Scene({ scene, isActive }: SceneProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const prefersReducedMotion = useReducedMotion();
+  const [useMobile, setUseMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setUseMobile(window.innerWidth < 640 && !!scene.mobileImage);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, [scene.mobileImage]);
 
   useEffect(() => {
     if (!videoRef.current) return;
@@ -26,6 +37,7 @@ export default function Scene({ scene, isActive }: SceneProps) {
     }
   }, [isActive]);
 
+  const imageSrc = useMobile ? scene.mobileImage! : scene.image;
   const position = scene.objectPosition || "center";
 
   return (
@@ -39,7 +51,7 @@ export default function Scene({ scene, isActive }: SceneProps) {
         <video
           ref={videoRef}
           src={scene.video}
-          poster={scene.image}
+          poster={imageSrc}
           loop
           muted
           playsInline
@@ -48,11 +60,11 @@ export default function Scene({ scene, isActive }: SceneProps) {
         />
       ) : (
         <Image
-          src={scene.image}
+          src={imageSrc}
           alt={scene.name}
           fill
           priority={isActive}
-          sizes="100vw"
+          sizes={useMobile ? "100vw" : "100vw"}
           className="object-cover"
           style={{ objectPosition: position }}
         />

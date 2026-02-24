@@ -218,7 +218,7 @@ export function SceneContainer() {
 
   return (
     <div
-      className="relative w-full h-dvh overflow-hidden bg-black"
+      className="relative w-full min-h-dvh h-full overflow-hidden bg-black"
       onClick={handleSceneTap}
       onTouchStart={volumeTouchStart}
       onTouchMove={volumeTouchMove}
