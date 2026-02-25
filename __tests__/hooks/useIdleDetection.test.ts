@@ -2,6 +2,11 @@ import { renderHook, act } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { useIdleDetection } from "../../hooks/useIdleDetection";
 
+// Mock isTouchDevice to return false (desktop behavior)
+vi.mock("../../lib/utils/isTouchDevice", () => ({
+  isTouchDevice: () => false,
+}));
+
 describe("useIdleDetection", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -25,15 +30,12 @@ describe("useIdleDetection", () => {
       })
     );
 
-    // Should not be idle initially
     expect(onIdle).not.toHaveBeenCalled();
 
-    // Fast-forward time past timeout
     act(() => {
       vi.advanceTimersByTime(3000);
     });
 
-    // Should call onIdle
     expect(onIdle).toHaveBeenCalledTimes(1);
     expect(onActive).not.toHaveBeenCalled();
   });
@@ -51,14 +53,12 @@ describe("useIdleDetection", () => {
       })
     );
 
-    // Become idle
     act(() => {
       vi.advanceTimersByTime(3000);
     });
 
     expect(onIdle).toHaveBeenCalledTimes(1);
 
-    // Trigger mouse move
     act(() => {
       window.dispatchEvent(new MouseEvent("mousemove"));
     });
@@ -79,29 +79,23 @@ describe("useIdleDetection", () => {
       })
     );
 
-    // Move mouse at 2s (before timeout)
     act(() => {
       vi.advanceTimersByTime(2000);
       window.dispatchEvent(new MouseEvent("mousemove"));
     });
 
-    // Should not be idle yet
     expect(onIdle).not.toHaveBeenCalled();
 
-    // Wait another 2s (total 4s, but timer was reset)
     act(() => {
       vi.advanceTimersByTime(2000);
     });
 
-    // Should not be idle (only 2s since last activity)
     expect(onIdle).not.toHaveBeenCalled();
 
-    // Wait 1 more second (3s since last activity)
     act(() => {
       vi.advanceTimersByTime(1000);
     });
 
-    // Now should be idle
     expect(onIdle).toHaveBeenCalledTimes(1);
   });
 
@@ -140,17 +134,14 @@ describe("useIdleDetection", () => {
       { initialProps: { enabled: true } }
     );
 
-    // Become idle
     act(() => {
       vi.advanceTimersByTime(3000);
     });
 
     expect(onIdle).toHaveBeenCalledTimes(1);
 
-    // Disable hook
     rerender({ enabled: false });
 
-    // Should call onActive when disabled while idle
     expect(onActive).toHaveBeenCalledTimes(1);
   });
 
@@ -167,12 +158,10 @@ describe("useIdleDetection", () => {
       })
     );
 
-    // Become idle
     act(() => {
       vi.advanceTimersByTime(3000);
     });
 
-    // Trigger keydown
     act(() => {
       window.dispatchEvent(new KeyboardEvent("keydown", { key: "a" }));
     });

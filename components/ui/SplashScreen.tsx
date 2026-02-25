@@ -164,9 +164,9 @@ export function SplashScreen({ isVisible, onEnter }: SplashScreenProps) {
               zooming
                 ? { duration: 1.2, ease: [0.25, 0.1, 0.25, 1] }
                 : {
-                  duration: prefersReducedMotion ? 0 : 1,
-                  delay: prefersReducedMotion ? 0 : 0.3,
-                }
+                    duration: prefersReducedMotion ? 0 : 1,
+                    delay: prefersReducedMotion ? 0 : 0.3,
+                  }
             }
           >
             <div className="relative">
