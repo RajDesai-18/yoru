@@ -18,6 +18,7 @@ const SHORTCUTS = [
   { key: "↓", action: "Volume Down" },
   { key: "/", action: "Toggle Shortcuts" },
   { key: "R", action: "Reset Preferences" },
+  { key: "V", action: "Toggle Video" },
 ];
 
 export function KeyboardShortcuts({

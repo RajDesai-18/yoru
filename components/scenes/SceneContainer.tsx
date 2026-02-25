@@ -21,6 +21,10 @@ import {
   useInstructionsSeen,
 } from "@/components/ui/MobileInstructions";
 import { isTouchDevice } from "@/lib/utils/isTouchDevice";
+import VideoScene from "./VideoScene";
+import { useVideoMode } from "@/hooks/useVideoMode";
+
+
 
 export function SceneContainer() {
   const [showSplash, setShowSplash] = useState(true);
@@ -35,6 +39,8 @@ export function SceneContainer() {
   const ambient = useAmbient();
   const { seen: instructionsSeen, markSeen: markInstructionsSeen } =
     useInstructionsSeen();
+  
+  const videoMode = useVideoMode();
 
   // Show instructions automatically on first visit (after splash)
   useEffect(() => {
@@ -192,6 +198,7 @@ export function SceneContainer() {
     onDown: () => ambient.setVolume(Math.max(ambient.volume - 0.1, 0)),
     onSlash: () => setShowShortcuts((prev) => !prev),
     onKeyR: handleReset,
+    onKeyV: () => videoMode.toggleVideo(),
   });
 
   useEffect(() => {
@@ -224,13 +231,33 @@ export function SceneContainer() {
       onTouchMove={volumeTouchMove}
     >
       <div className="fixed inset-0 w-full h-full bg-black overflow-hidden">
-        {SCENES.map((scene, index) => (
-          <Scene
-            key={scene.id}
-            scene={scene}
-            isActive={index === currentIndex}
-          />
-        ))}
+        {SCENES.map((scene, index) => {
+          const isActive = index === currentIndex;
+          const showVideo = videoMode.shouldShowVideo(index);
+
+          return (
+            <div key={scene.id} className="absolute inset-0 w-full h-full">
+              {/* Image layer — always rendered, fades out when video is active */}
+              <Scene
+                scene={scene}
+                isActive={isActive && !showVideo}
+              />
+
+              {/* Video layer — only mounted when scene has video and video is enabled */}
+              {scene.video && !videoMode.isTouch && (
+                <VideoScene
+                  scene={scene}
+                  isActive={isActive && showVideo}
+                  preload={
+                    videoMode.videoEnabled &&
+                    (index === (currentIndex + 1) % SCENES.length ||
+                      index === (currentIndex - 1 + SCENES.length) % SCENES.length)
+                  }
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       <FXOverlay />
@@ -254,6 +281,10 @@ export function SceneContainer() {
           }
           onShortcutsToggle={() => setShowShortcuts((prev) => !prev)}
           onInstructionsToggle={() => setShowInstructions((prev) => !prev)}
+          videoEnabled={videoMode.videoEnabled}
+          sceneHasVideo={videoMode.sceneHasVideo(currentIndex)}
+          onVideoToggle={videoMode.toggleVideo}
+          isTouch={videoMode.isTouch}
         />
       </div>
 

@@ -216,5 +216,5 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 ---
 
 <p align="center">
-  <strong>夜</strong> — Built with 🌙 by <a href="https://github.com/RajDesai-18">Raj Desai</a>
+  <strong>夜</strong> — Built with ❤️ by <a href="https://github.com/RajDesai-18">Raj Desai</a>
 </p>
