@@ -18,6 +18,7 @@ import {
   Radio,
   Volume1,
   Info,
+  Film,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { isTouchDevice } from "@/lib/utils/isTouchDevice";
@@ -37,6 +38,10 @@ interface ControlsProps {
   onAmbientSelectorToggle?: () => void;
   onShortcutsToggle?: () => void;
   onInstructionsToggle?: () => void;
+  videoEnabled?: boolean;
+  sceneHasVideo?: boolean;
+  onVideoToggle?: () => void;
+  isTouch?: boolean;
 }
 export function Controls({
   isPlaying,
@@ -52,6 +57,9 @@ export function Controls({
   onShortcutsToggle,
   onInstructionsToggle,
   showSwipeVolume,
+  videoEnabled,
+  sceneHasVideo,
+  onVideoToggle,
 }: ControlsProps) {
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [showMobileVolume, setShowMobileVolume] = useState(false);
@@ -212,6 +220,45 @@ export function Controls({
               </TooltipTrigger>
               <TooltipContent>
                 <p>Ambient Sounds</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
+        {/* Video toggle — desktop only */}
+        {onVideoToggle && !isTouch && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onVideoToggle}
+                  disabled={!sceneHasVideo}
+                  className={`
+                        hover:bg-white/10 transition-colors
+                        min-h-10 min-w-10 sm:min-h-11 sm:min-w-11
+                        hidden sm:inline-flex
+                        ${videoEnabled && sceneHasVideo
+                      ? "text-white"
+                      : "text-white/40"
+                    }
+                        ${!sceneHasVideo ? "opacity-30 cursor-not-allowed" : ""}
+                    `}
+                  aria-label={videoEnabled ? "Disable video scenes" : "Enable video scenes"}
+                >
+                  <Film className="h-4 w-4 sm:h-5 sm:w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>
+                  {!sceneHasVideo
+                    ? "No video for this scene"
+                    : videoEnabled
+                      ? "Disable Video (V)"
+                      : "Enable Video (V)"
+                  }
+                </p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

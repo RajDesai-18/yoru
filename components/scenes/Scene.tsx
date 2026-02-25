@@ -3,7 +3,7 @@
 import { Scene as SceneType } from "@/lib/constants";
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface SceneProps {
   scene: SceneType;
@@ -11,7 +11,6 @@ interface SceneProps {
 }
 
 export default function Scene({ scene, isActive }: SceneProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const [useMobile, setUseMobile] = useState(false);
 
@@ -25,18 +24,6 @@ export default function Scene({ scene, isActive }: SceneProps) {
     return () => window.removeEventListener("resize", checkMobile);
   }, [scene.mobileImage]);
 
-  useEffect(() => {
-    if (!videoRef.current) return;
-
-    if (isActive) {
-      videoRef.current.play().catch((error) => {
-        console.error("Video playback failed:", error);
-      });
-    } else {
-      videoRef.current.pause();
-    }
-  }, [isActive]);
-
   const imageSrc = useMobile ? scene.mobileImage! : scene.image;
   const position = scene.objectPosition || "center";
 
@@ -47,28 +34,15 @@ export default function Scene({ scene, isActive }: SceneProps) {
       transition={{ duration: prefersReducedMotion ? 0 : 3 }}
       className="absolute inset-0 w-full h-full"
     >
-      {scene.video ? (
-        <video
-          ref={videoRef}
-          src={scene.video}
-          poster={imageSrc}
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-cover"
-          style={{ objectPosition: position }}
-        />
-      ) : (
-        <Image
-          src={imageSrc}
-          alt={scene.name}
-          fill
-          priority={isActive}
-          sizes={useMobile ? "100vw" : "100vw"}
-          className="object-cover"
-          style={{ objectPosition: position }}
-        />
-      )}
+      <Image
+        src={imageSrc}
+        alt={scene.name}
+        fill
+        priority={isActive}
+        sizes="100vw"
+        className="object-cover"
+        style={{ objectPosition: position }}
+      />
     </motion.div>
   );
 }

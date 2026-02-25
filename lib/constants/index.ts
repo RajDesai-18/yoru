@@ -22,6 +22,7 @@ export const SCENES: Scene[] = [
     name: "Rain 1",
     image: "/scenes/rain-1.png",
     mobileImage: "/scenes/rain-1-mobile.png",
+    video: "/scenes/videos/rain-1.mp4",
     soundId: "rain-light",
     objectPosition: "70% center",
   },
@@ -29,6 +30,7 @@ export const SCENES: Scene[] = [
     id: "rain-2",
     name: "Rain 2",
     image: "/scenes/rain-2.png",
+    video: "/scenes/videos/rain-2.mp4",
     soundId: "rain-light",
   },
   // Rain — Heavy
@@ -37,12 +39,14 @@ export const SCENES: Scene[] = [
     name: "Rain 3",
     image: "/scenes/rain-3.png",
     mobileImage: "/scenes/rain-3-mobile.png",
+    video: "/scenes/videos/rain-3.mp4",
     soundId: "rain-heavy",
   },
   {
     id: "rain-4",
     name: "Rain 4",
     image: "/scenes/rain-4.png",
+    video: "/scenes/videos/rain-4.mp4",
     soundId: "rain-heavy",
   },
   // Ocean / Water
@@ -50,12 +54,14 @@ export const SCENES: Scene[] = [
     id: "ocean-1",
     name: "Ocean 1",
     image: "/scenes/ocean-1.png",
+    video: "/scenes/videos/ocean-1.mp4",
     soundId: "ocean-waves",
   },
   {
     id: "ocean-2",
     name: "Ocean 2",
     image: "/scenes/ocean-2.png",
+    video: "/scenes/videos/ocean-2.mp4",
     soundId: "ocean-waves",
   },
   {
@@ -172,4 +178,8 @@ export const AMBIENT = {
   CROSSFADE_DURATION: 300,
   STORAGE_KEY: "yoru-ambient-sound",
   VOLUME_STORAGE_KEY: "yoru-ambient-volume",
+} as const;
+
+export const VIDEO = {
+  STORAGE_KEY: "yoru-video-enabled",
 } as const;
