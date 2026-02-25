@@ -84,5 +84,16 @@ export function useKeyboard({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onLeft, onRight, onUp, onDown, onSpace, onKeyF, onKeyM, onSlash, onKeyR, onKeyV]);
+  }, [
+    onLeft,
+    onRight,
+    onUp,
+    onDown,
+    onSpace,
+    onKeyF,
+    onKeyM,
+    onSlash,
+    onKeyR,
+    onKeyV,
+  ]);
 }

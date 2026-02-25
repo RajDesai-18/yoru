@@ -239,13 +239,18 @@ export function Controls({
                         hover:bg-white/10 transition-colors
                         min-h-10 min-w-10 sm:min-h-11 sm:min-w-11
                         hidden sm:inline-flex
-                        ${videoEnabled && sceneHasVideo
-                      ? "text-white"
-                      : "text-white/40"
-                    }
+                        ${
+                          videoEnabled && sceneHasVideo
+                            ? "text-white"
+                            : "text-white/40"
+                        }
                         ${!sceneHasVideo ? "opacity-30 cursor-not-allowed" : ""}
                     `}
-                  aria-label={videoEnabled ? "Disable video scenes" : "Enable video scenes"}
+                  aria-label={
+                    videoEnabled
+                      ? "Disable video scenes"
+                      : "Enable video scenes"
+                  }
                 >
                   <Film className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
@@ -256,8 +261,7 @@ export function Controls({
                     ? "No video for this scene"
                     : videoEnabled
                       ? "Disable Video (V)"
-                      : "Enable Video (V)"
-                  }
+                      : "Enable Video (V)"}
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -332,15 +336,15 @@ export function Controls({
         `}
       >
         Visuals AI-generated · Music via{" "}
-<a
-        href="https://pixabay.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="underline underline-offset-2 hover:text-white/40 transition-colors"
+        <a
+          href="https://pixabay.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline underline-offset-2 hover:text-white/40 transition-colors"
         >
-        Pixabay
-      </a>
-    </div >
+          Pixabay
+        </a>
+      </div>
     </>
   );
 }

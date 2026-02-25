@@ -24,8 +24,6 @@ import { isTouchDevice } from "@/lib/utils/isTouchDevice";
 import VideoScene from "./VideoScene";
 import { useVideoMode } from "@/hooks/useVideoMode";
 
-
-
 export function SceneContainer() {
   const [showSplash, setShowSplash] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -35,11 +33,11 @@ export function SceneContainer() {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const [showSwipeVolume, setShowSwipeVolume] = useState(false);
-  
+
   const ambient = useAmbient();
   const { seen: instructionsSeen, markSeen: markInstructionsSeen } =
     useInstructionsSeen();
-  
+
   const videoMode = useVideoMode();
 
   // Show instructions automatically on first visit (after splash)
@@ -65,7 +63,6 @@ export function SceneContainer() {
   const controlsRef = useRef<HTMLDivElement>(null);
   const lastTapRef = useRef(0);
   const tapTimerRef = useRef<NodeJS.Timeout | null>(null);
-
 
   const nextScene = useCallback(() => {
     setManualOverride(true);
@@ -238,10 +235,7 @@ export function SceneContainer() {
           return (
             <div key={scene.id} className="absolute inset-0 w-full h-full">
               {/* Image layer — always rendered, fades out when video is active */}
-              <Scene
-                scene={scene}
-                isActive={isActive && !showVideo}
-              />
+              <Scene scene={scene} isActive={isActive && !showVideo} />
 
               {/* Video layer — only mounted when scene has video and video is enabled */}
               {scene.video && !videoMode.isTouch && (
@@ -251,7 +245,8 @@ export function SceneContainer() {
                   preload={
                     videoMode.videoEnabled &&
                     (index === (currentIndex + 1) % SCENES.length ||
-                      index === (currentIndex - 1 + SCENES.length) % SCENES.length)
+                      index ===
+                        (currentIndex - 1 + SCENES.length) % SCENES.length)
                   }
                 />
               )}
