@@ -19,6 +19,7 @@ import {
   Volume1,
   Info,
   Film,
+  Sparkles,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { isTouchDevice } from "@/lib/utils/isTouchDevice";
@@ -42,6 +43,8 @@ interface ControlsProps {
   sceneHasVideo?: boolean;
   onVideoToggle?: () => void;
   isTouch?: boolean;
+  fxEnabled?: boolean;
+  onFXSelectorToggle?: () => void;
 }
 export function Controls({
   isPlaying,
@@ -60,6 +63,8 @@ export function Controls({
   videoEnabled,
   sceneHasVideo,
   onVideoToggle,
+  fxEnabled,
+  onFXSelectorToggle,
 }: ControlsProps) {
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [showMobileVolume, setShowMobileVolume] = useState(false);
@@ -263,6 +268,32 @@ export function Controls({
                       ? "Disable Video (V)"
                       : "Enable Video (V)"}
                 </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
+        {/* FX selector toggle */}
+        {onFXSelectorToggle && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onFXSelectorToggle}
+                  className={`
+                        hover:bg-white/10 transition-colors
+                        min-h-10 min-w-10 sm:min-h-11 sm:min-w-11
+                        ${fxEnabled ? "text-white" : "text-white/40"}
+                    `}
+                  aria-label="Visual effects"
+                >
+                  <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Visual Effects (X)</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

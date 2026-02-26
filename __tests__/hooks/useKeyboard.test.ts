@@ -109,6 +109,17 @@ describe("useKeyboard", () => {
     expect(onKeyV).toHaveBeenCalledTimes(1);
   });
 
+  it("should call onKeyX when X key is pressed", () => {
+    const onKeyX = vi.fn();
+
+    renderHook(() => useKeyboard({ onKeyX }));
+
+    const event = new KeyboardEvent("keydown", { code: "KeyX" });
+    window.dispatchEvent(event);
+
+    expect(onKeyX).toHaveBeenCalledTimes(1);
+  });
+
   it("should not call callbacks when typing in an input", () => {
     const onSpace = vi.fn();
 

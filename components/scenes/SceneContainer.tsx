@@ -20,9 +20,12 @@ import {
   MobileInstructions,
   useInstructionsSeen,
 } from "@/components/ui/MobileInstructions";
+import { FXSelector } from "@/components/ui/FXSelector";
 import { isTouchDevice } from "@/lib/utils/isTouchDevice";
 import VideoScene from "./VideoScene";
 import { useVideoMode } from "@/hooks/useVideoMode";
+import { useVisualFX } from "@/hooks/useVisualFX";
+import { FXLayer } from "./FXLayer";
 
 export function SceneContainer() {
   const [showSplash, setShowSplash] = useState(true);
@@ -33,12 +36,14 @@ export function SceneContainer() {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const [showSwipeVolume, setShowSwipeVolume] = useState(false);
+  const [showFXSelector, setShowFXSelector] = useState(false);
 
   const ambient = useAmbient();
   const { seen: instructionsSeen, markSeen: markInstructionsSeen } =
     useInstructionsSeen();
 
   const videoMode = useVideoMode();
+  const visualFX = useVisualFX();
 
   // Show instructions automatically on first visit (after splash)
   useEffect(() => {
@@ -61,6 +66,7 @@ export function SceneContainer() {
   const { toggleFullscreen } = useFullscreen();
   const ambientSelectorRef = useRef<HTMLDivElement>(null);
   const controlsRef = useRef<HTMLDivElement>(null);
+  const fxSelectorRef = useRef<HTMLDivElement>(null);
   const lastTapRef = useRef(0);
   const tapTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -105,6 +111,11 @@ export function SceneContainer() {
         return;
       }
 
+      if (showFXSelector) {
+        setShowFXSelector(false);
+        return;
+      }
+
       if (showInstructions) {
         return;
       }
@@ -144,7 +155,14 @@ export function SceneContainer() {
         }, 300);
       }
     },
-    [showAmbientSelector, showInstructions, nextScene, prevScene, ambient]
+    [
+      showAmbientSelector,
+      showFXSelector,
+      showInstructions,
+      nextScene,
+      prevScene,
+      ambient,
+    ]
   );
 
   // Swipe up/down for volume — shows slider automatically
@@ -196,6 +214,7 @@ export function SceneContainer() {
     onSlash: () => setShowShortcuts((prev) => !prev),
     onKeyR: handleReset,
     onKeyV: () => videoMode.toggleVideo(),
+    onKeyX: () => visualFX.toggleFX(),
   });
 
   useEffect(() => {
@@ -207,13 +226,20 @@ export function SceneContainer() {
       ) {
         setShowAmbientSelector(false);
       }
+      if (
+        showFXSelector &&
+        fxSelectorRef.current &&
+        !fxSelectorRef.current.contains(event.target as Node)
+      ) {
+        setShowFXSelector(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showAmbientSelector]);
+  }, [showAmbientSelector, showFXSelector]);
 
   const handleCloseInstructions = useCallback(() => {
     setShowInstructions(false);
@@ -256,6 +282,7 @@ export function SceneContainer() {
       </div>
 
       <FXOverlay />
+      <FXLayer activeFX={visualFX.activeFX} />
 
       <SceneIndicator currentIndex={currentIndex} />
 
@@ -280,6 +307,8 @@ export function SceneContainer() {
           sceneHasVideo={videoMode.sceneHasVideo(currentIndex)}
           onVideoToggle={videoMode.toggleVideo}
           isTouch={videoMode.isTouch}
+          fxEnabled={visualFX.isActive}
+          onFXSelectorToggle={() => setShowFXSelector(!showFXSelector)}
         />
       </div>
 
@@ -292,6 +321,16 @@ export function SceneContainer() {
         }}
         isVisible={showAmbientSelector && isControlsVisible}
       />
+
+      <FXSelector
+        ref={fxSelectorRef}
+        currentFX={visualFX.selectedFX}
+        onFXChange={(fxId) => {
+          visualFX.setFX(fxId);
+        }}
+        isVisible={showFXSelector && isControlsVisible}
+      />
+
       <KeyboardShortcuts
         isVisible={showShortcuts}
         onClose={() => setShowShortcuts(false)}

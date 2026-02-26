@@ -183,3 +183,25 @@ export const AMBIENT = {
 export const VIDEO = {
   STORAGE_KEY: "yoru-video-enabled",
 } as const;
+
+export type FXId = "none" | "bokeh" | "fireflies" | "particles";
+
+export interface FXOption {
+  id: FXId;
+  name: string;
+}
+
+export const FX_OPTIONS: FXOption[] = [
+  { id: "none", name: "None" },
+  { id: "bokeh", name: "Bokeh" },
+  { id: "particles", name: "Particles" },
+  {
+    id: "fireflies",
+    name: "Fireflies",
+  },
+];
+
+export const VISUAL_FX = {
+  STORAGE_KEY: "yoru-fx-selected",
+  DEFAULT_FX: "none" as FXId,
+} as const;
