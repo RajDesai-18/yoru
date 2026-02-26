@@ -19,6 +19,7 @@ const SHORTCUTS = [
   { key: "/", action: "Toggle Shortcuts" },
   { key: "R", action: "Reset Preferences" },
   { key: "V", action: "Toggle Video" },
+  { key: "X", action: "Toggle Visual FX" },
 ];
 
 export function KeyboardShortcuts({
