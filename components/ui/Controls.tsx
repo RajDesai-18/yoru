@@ -20,6 +20,7 @@ import {
   Info,
   Film,
   Sparkles,
+  Headphones,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { isTouchDevice } from "@/lib/utils/isTouchDevice";
@@ -45,6 +46,8 @@ interface ControlsProps {
   isTouch?: boolean;
   fxEnabled?: boolean;
   onFXSelectorToggle?: () => void;
+  spotifyConnected?: boolean;
+  onSpotifySelectorToggle?: () => void;
 }
 export function Controls({
   isPlaying,
@@ -65,6 +68,8 @@ export function Controls({
   onVideoToggle,
   fxEnabled,
   onFXSelectorToggle,
+  spotifyConnected,
+  onSpotifySelectorToggle,
 }: ControlsProps) {
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [showMobileVolume, setShowMobileVolume] = useState(false);
@@ -225,6 +230,34 @@ export function Controls({
               </TooltipTrigger>
               <TooltipContent>
                 <p>Ambient Sounds</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
+        {/* Spotify */}
+        {onSpotifySelectorToggle && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onSpotifySelectorToggle}
+                  className={`
+                    hover:bg-white/10 transition-colors
+                    min-h-10 min-w-10 sm:min-h-11 sm:min-w-11
+                    ${spotifyConnected ? "text-[#1DB954]" : "text-white/40"}
+                  `}
+                  aria-label="Spotify"
+                >
+                  <Headphones className="h-4 w-4 sm:h-5 sm:w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>
+                  {spotifyConnected ? "Spotify Connected" : "Connect Spotify"}
+                </p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

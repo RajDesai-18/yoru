@@ -26,6 +26,12 @@ import VideoScene from "./VideoScene";
 import { useVideoMode } from "@/hooks/useVideoMode";
 import { useVisualFX } from "@/hooks/useVisualFX";
 import { FXLayer } from "./FXLayer";
+import { useSpotify } from "@/hooks/useSpotify";
+import { useSpotifyPlayer } from "@/hooks/useSpotifyPlayer";
+import { useAudioSource } from "@/hooks/useAudioSource";
+import { startPlayback } from "@/lib/spotify/api";
+import SpotifySelector from "@/components/ui/SpotifySelector";
+import { NowPlaying } from "@/components/ui/NowPlaying";
 
 export function SceneContainer() {
   const [showSplash, setShowSplash] = useState(true);
@@ -37,6 +43,10 @@ export function SceneContainer() {
   const [showInstructions, setShowInstructions] = useState(false);
   const [showSwipeVolume, setShowSwipeVolume] = useState(false);
   const [showFXSelector, setShowFXSelector] = useState(false);
+  const [showSpotifySelector, setShowSpotifySelector] = useState(false);
+  const [activePlaylistUri, setActivePlaylistUri] = useState<string | null>(
+    null
+  );
 
   const ambient = useAmbient();
   const { seen: instructionsSeen, markSeen: markInstructionsSeen } =
@@ -44,8 +54,11 @@ export function SceneContainer() {
 
   const videoMode = useVideoMode();
   const visualFX = useVisualFX();
+  const spotify = useSpotify();
+  const spotifyPlayer = useSpotifyPlayer(spotify.accessToken);
+  const audioSource = useAudioSource();
+  const spotifySelectorRef = useRef<HTMLDivElement>(null);
 
-  // Show instructions automatically on first visit (after splash)
   useEffect(() => {
     if (!showSplash && !instructionsSeen && isTouchDevice()) {
       const timer = setTimeout(() => setShowInstructions(true), 800);
@@ -62,6 +75,15 @@ export function SceneContainer() {
       setCurrentIndex(sceneIndex);
     }
   }, [ambient.currentSound, manualOverride]);
+
+  useEffect(() => {
+    if (spotify.isConnected && spotifyPlayer.isReady) {
+      audioSource.setSource("spotify");
+    }
+    if (!spotify.isConnected) {
+      audioSource.setSource("builtin");
+    }
+  }, [spotify.isConnected, spotifyPlayer.isReady, audioSource]);
 
   const { toggleFullscreen } = useFullscreen();
   const ambientSelectorRef = useRef<HTMLDivElement>(null);
@@ -85,8 +107,29 @@ export function SceneContainer() {
     window.location.reload();
   };
 
-  // Touch zones: left 30% = prev, right 30% = next, center 40% = toggle UI
-  // Touch zones: left 20% = prev, right 80% = next, center = toggle UI / double-tap play
+  const handleSelectPlaylist = useCallback(
+    async (uri: string) => {
+      if (!spotify.accessToken || !spotifyPlayer.deviceId) return;
+      try {
+        await startPlayback(spotify.accessToken, spotifyPlayer.deviceId, uri);
+        setActivePlaylistUri(uri);
+        setShowSpotifySelector(false);
+        audioSource.setSource("spotify");
+      } catch (err) {
+        console.error("Failed to start playback:", err);
+      }
+    },
+    [spotify.accessToken, spotifyPlayer.deviceId, audioSource]
+  );
+
+  const handlePlayPause = useCallback(() => {
+    if (audioSource.isSpotify && spotifyPlayer.isReady) {
+      spotifyPlayer.togglePlay();
+    } else {
+      ambient.togglePlay();
+    }
+  }, [audioSource.isSpotify, spotifyPlayer, ambient]);
+
   const handleSceneTap = useCallback(
     (e: React.MouseEvent) => {
       if (!isTouchDevice()) return;
@@ -116,6 +159,11 @@ export function SceneContainer() {
         return;
       }
 
+      if (showSpotifySelector) {
+        setShowSpotifySelector(false);
+        return;
+      }
+
       if (showInstructions) {
         return;
       }
@@ -135,20 +183,17 @@ export function SceneContainer() {
         return;
       }
 
-      // Center zone: single tap = toggle UI, double tap = play/pause
       const now = Date.now();
       const timeSinceLastTap = now - lastTapRef.current;
       lastTapRef.current = now;
 
       if (timeSinceLastTap < 300) {
-        // Double tap detected — cancel the single tap timer and play/pause
         if (tapTimerRef.current) {
           clearTimeout(tapTimerRef.current);
           tapTimerRef.current = null;
         }
-        ambient.togglePlay();
+        handlePlayPause();
       } else {
-        // Wait to see if a second tap comes
         tapTimerRef.current = setTimeout(() => {
           setIsControlsVisible((prev) => !prev);
           tapTimerRef.current = null;
@@ -158,14 +203,14 @@ export function SceneContainer() {
     [
       showAmbientSelector,
       showFXSelector,
+      showSpotifySelector,
       showInstructions,
       nextScene,
       prevScene,
-      ambient,
+      handlePlayPause,
     ]
   );
 
-  // Swipe up/down for volume — shows slider automatically
   const swipeVolumeTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleSwipeVolumeStart = useCallback(() => {
@@ -178,7 +223,6 @@ export function SceneContainer() {
   const handleSwipeVolumeChange = useCallback(
     (v: number) => {
       ambient.setVolume(v);
-      // Reset auto-hide timer on each change
       if (swipeVolumeTimerRef.current) {
         clearTimeout(swipeVolumeTimerRef.current);
       }
@@ -204,7 +248,7 @@ export function SceneContainer() {
   });
 
   useKeyboard({
-    onSpace: () => ambient.togglePlay(),
+    onSpace: handlePlayPause,
     onLeft: prevScene,
     onRight: nextScene,
     onKeyF: toggleFullscreen,
@@ -219,19 +263,32 @@ export function SceneContainer() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      const isControlsClick = controlsRef.current?.contains(target);
+
       if (
         showAmbientSelector &&
         ambientSelectorRef.current &&
-        !ambientSelectorRef.current.contains(event.target as Node)
+        !ambientSelectorRef.current.contains(target) &&
+        !isControlsClick
       ) {
         setShowAmbientSelector(false);
       }
       if (
         showFXSelector &&
         fxSelectorRef.current &&
-        !fxSelectorRef.current.contains(event.target as Node)
+        !fxSelectorRef.current.contains(target) &&
+        !isControlsClick
       ) {
         setShowFXSelector(false);
+      }
+      if (
+        showSpotifySelector &&
+        spotifySelectorRef.current &&
+        !spotifySelectorRef.current.contains(target) &&
+        !isControlsClick
+      ) {
+        setShowSpotifySelector(false);
       }
     };
 
@@ -239,12 +296,16 @@ export function SceneContainer() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showAmbientSelector, showFXSelector]);
+  }, [showAmbientSelector, showFXSelector, showSpotifySelector]);
 
   const handleCloseInstructions = useCallback(() => {
     setShowInstructions(false);
     markInstructionsSeen();
   }, [markInstructionsSeen]);
+
+  const isPlaying = audioSource.isSpotify
+    ? spotifyPlayer.isPlaying
+    : ambient.isPlaying;
 
   return (
     <div
@@ -260,10 +321,8 @@ export function SceneContainer() {
 
           return (
             <div key={scene.id} className="absolute inset-0 w-full h-full">
-              {/* Image layer — always rendered, fades out when video is active */}
               <Scene scene={scene} isActive={isActive && !showVideo} />
 
-              {/* Video layer — only mounted when scene has video and video is enabled */}
               {scene.video && !videoMode.isTouch && (
                 <VideoScene
                   scene={scene}
@@ -286,14 +345,18 @@ export function SceneContainer() {
 
       <SceneIndicator currentIndex={currentIndex} />
 
-      <div ref={controlsRef} onClick={(e) => e.stopPropagation()}>
+      <div
+        ref={controlsRef}
+        onClick={(e) => e.stopPropagation()}
+        className="relative"
+      >
         <Controls
-          isPlaying={ambient.isPlaying}
+          isPlaying={isPlaying}
           isMuted={ambient.isMuted}
           volume={ambient.volume}
           isVisible={isControlsVisible}
           showSwipeVolume={showSwipeVolume}
-          onPlayPause={() => ambient.togglePlay()}
+          onPlayPause={handlePlayPause}
           onVolumeChange={(value) => ambient.setVolume(value)}
           onMuteToggle={() => ambient.toggleMute()}
           onFullscreen={toggleFullscreen}
@@ -309,6 +372,21 @@ export function SceneContainer() {
           isTouch={videoMode.isTouch}
           fxEnabled={visualFX.isActive}
           onFXSelectorToggle={() => setShowFXSelector(!showFXSelector)}
+          spotifyConnected={spotify.isConnected}
+          onSpotifySelectorToggle={() =>
+            setShowSpotifySelector((prev) => !prev)
+          }
+        />
+
+        <SpotifySelector
+          ref={spotifySelectorRef}
+          isOpen={showSpotifySelector && isControlsVisible}
+          isConnected={spotify.isConnected}
+          accessToken={spotify.accessToken}
+          onConnect={spotify.connect}
+          onDisconnect={spotify.disconnect}
+          onSelectPlaylist={handleSelectPlaylist}
+          activePlaylistUri={activePlaylistUri}
         />
       </div>
 
@@ -330,6 +408,15 @@ export function SceneContainer() {
         }}
         isVisible={showFXSelector && isControlsVisible}
       />
+
+      {spotifyPlayer.nowPlaying && (
+        <NowPlaying
+          trackName={spotifyPlayer.nowPlaying.trackName}
+          artistName={spotifyPlayer.nowPlaying.artistName}
+          albumArt={spotifyPlayer.nowPlaying.albumArt}
+          isVisible={isControlsVisible}
+        />
+      )}
 
       <KeyboardShortcuts
         isVisible={showShortcuts}
