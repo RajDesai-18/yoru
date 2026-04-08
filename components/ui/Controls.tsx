@@ -48,6 +48,10 @@ interface ControlsProps {
   onFXSelectorToggle?: () => void;
   spotifyConnected?: boolean;
   onSpotifySelectorToggle?: () => void;
+  spotifyVolume?: number;
+  spotifyMuted?: boolean;
+  onSpotifyVolumeChange?: (volume: number) => void;
+  onSpotifyMuteToggle?: () => void;
 }
 export function Controls({
   isPlaying,
@@ -70,8 +74,13 @@ export function Controls({
   onFXSelectorToggle,
   spotifyConnected,
   onSpotifySelectorToggle,
+  spotifyVolume = 0.5,
+  spotifyMuted = false,
+  onSpotifyVolumeChange,
+  onSpotifyMuteToggle,
 }: ControlsProps) {
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
+  const [showSpotifyVolumeSlider, setShowSpotifyVolumeSlider] = useState(false);
   const [showMobileVolume, setShowMobileVolume] = useState(false);
   const [isTouch, setIsTouch] = useState(false);
 
@@ -86,8 +95,15 @@ export function Controls({
     return () => clearTimeout(timer);
   }, [showMobileVolume, volume]);
 
-  const VolumeIcon =
+  const AmbientVolumeIcon =
     isMuted || volume === 0 ? VolumeX : volume <= 0.3 ? Volume1 : Volume2;
+
+  const SpotifyVolumeIcon =
+    spotifyMuted || spotifyVolume === 0
+      ? VolumeX
+      : spotifyVolume <= 0.3
+        ? Volume1
+        : Volume2;
 
   return (
     <>
@@ -155,7 +171,7 @@ export function Controls({
 
         <div className="w-px h-5 sm:h-6 bg-white/10" />
 
-        {/* Volume */}
+        {/* Ambient Volume */}
         <div
           className="relative flex items-center gap-1 sm:gap-2"
           onMouseEnter={() => !isTouch && setShowVolumeSlider(true)}
@@ -178,13 +194,13 @@ export function Controls({
                     if (isTouch) onMuteToggle();
                   }}
                   className="text-white/80 hover:text-white hover:bg-white/10 transition-colors min-h-10 min-w-10 sm:min-h-11 sm:min-w-11"
-                  aria-label={isMuted ? "Unmute" : "Mute"}
+                  aria-label={isMuted ? "Unmute ambient" : "Mute ambient"}
                 >
-                  <VolumeIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <AmbientVolumeIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{isMuted ? "Unmute (M)" : "Mute (M)"}</p>
+                <p>{isMuted ? "Unmute Ambient (M)" : "Mute Ambient (M)"}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -210,6 +226,59 @@ export function Controls({
             />
           </div>
         </div>
+
+        {/* Spotify Volume — only when connected */}
+        {spotifyConnected && onSpotifyVolumeChange && onSpotifyMuteToggle && (
+          <div
+            className="relative flex items-center gap-1 sm:gap-2"
+            onMouseEnter={() => !isTouch && setShowSpotifyVolumeSlider(true)}
+            onMouseLeave={() => !isTouch && setShowSpotifyVolumeSlider(false)}
+          >
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onSpotifyMuteToggle()}
+                    className="text-[#1DB954] hover:text-[#1ed760] hover:bg-white/10 transition-colors min-h-10 min-w-10 sm:min-h-11 sm:min-w-11"
+                    aria-label={
+                      spotifyMuted ? "Unmute Spotify" : "Mute Spotify"
+                    }
+                  >
+                    <SpotifyVolumeIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>
+                    {spotifyMuted ? "Unmute Spotify" : "Mute Spotify"}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            {/* Desktop: hover-expand horizontal slider */}
+            <div
+              className={`
+                hidden sm:block overflow-hidden transition-all duration-300
+                ${showSpotifyVolumeSlider ? "w-24 opacity-100" : "w-0 opacity-0"}
+              `}
+            >
+              <Slider
+                value={[spotifyMuted ? 0 : spotifyVolume]}
+                onValueChange={(values) => {
+                  const newVolume = values[0];
+                  if (newVolume !== undefined) {
+                    onSpotifyVolumeChange(newVolume);
+                  }
+                }}
+                max={1}
+                step={0.01}
+                className="w-24"
+              />
+            </div>
+          </div>
+        )}
 
         <div className="w-px h-5 sm:h-6 bg-white/10" />
 
@@ -277,11 +346,10 @@ export function Controls({
                         hover:bg-white/10 transition-colors
                         min-h-10 min-w-10 sm:min-h-11 sm:min-w-11
                         hidden sm:inline-flex
-                        ${
-                          videoEnabled && sceneHasVideo
-                            ? "text-white"
-                            : "text-white/40"
-                        }
+                        ${videoEnabled && sceneHasVideo
+                      ? "text-white"
+                      : "text-white/40"
+                    }
                         ${!sceneHasVideo ? "opacity-30 cursor-not-allowed" : ""}
                     `}
                   aria-label={
@@ -400,15 +468,15 @@ export function Controls({
         `}
       >
         Visuals AI-generated · Music via{" "}
-        <a
-          href="https://pixabay.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline underline-offset-2 hover:text-white/40 transition-colors"
+<a
+        href="https://pixabay.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline underline-offset-2 hover:text-white/40 transition-colors"
         >
-          Pixabay
-        </a>
-      </div>
+        Pixabay
+      </a>
+    </div >
     </>
   );
 }

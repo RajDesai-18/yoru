@@ -47,6 +47,10 @@ export function SceneContainer() {
   const [activePlaylistUri, setActivePlaylistUri] = useState<string | null>(
     null
   );
+  const [activeTrackUri, setActiveTrackUri] = useState<string | null>(null);
+  const [spotifyVolume, setSpotifyVolume] = useState(0.5);
+  const [spotifyMuted, setSpotifyMuted] = useState(false);
+  const spotifyVolumeBeforeMute = useRef(0.5);
 
   const ambient = useAmbient();
   const { seen: instructionsSeen, markSeen: markInstructionsSeen } =
@@ -85,6 +89,12 @@ export function SceneContainer() {
     }
   }, [spotify.isConnected, spotifyPlayer.isReady, audioSource]);
 
+  useEffect(() => {
+    if (spotifyPlayer.nowPlaying?.trackUri) {
+      setActiveTrackUri(spotifyPlayer.nowPlaying.trackUri);
+    }
+  }, [spotifyPlayer.nowPlaying?.trackUri]);
+
   const { toggleFullscreen } = useFullscreen();
   const ambientSelectorRef = useRef<HTMLDivElement>(null);
   const controlsRef = useRef<HTMLDivElement>(null);
@@ -107,28 +117,58 @@ export function SceneContainer() {
     window.location.reload();
   };
 
-  const handleSelectPlaylist = useCallback(
-    async (uri: string) => {
-      if (!spotify.accessToken || !spotifyPlayer.deviceId) return;
+  const handleSelectTrack = useCallback(
+    async (playlistUri: string, trackUri: string, keepOpen?: boolean) => {
+      if (
+        !spotify.accessToken ||
+        !spotifyPlayer.deviceId ||
+        !spotifyPlayer.isReady
+      )
+        return;
       try {
-        await startPlayback(spotify.accessToken, spotifyPlayer.deviceId, uri);
-        setActivePlaylistUri(uri);
-        setShowSpotifySelector(false);
+        await startPlayback(
+          spotify.accessToken,
+          spotifyPlayer.deviceId,
+          playlistUri,
+          trackUri || undefined
+        );
+        setActivePlaylistUri(playlistUri);
+        setActiveTrackUri(trackUri || null);
+        if (!keepOpen) {
+          setShowSpotifySelector(false);
+        }
         audioSource.setSource("spotify");
       } catch (err) {
         console.error("Failed to start playback:", err);
       }
     },
-    [spotify.accessToken, spotifyPlayer.deviceId, audioSource]
+    [spotify.accessToken, spotifyPlayer.deviceId, spotifyPlayer.isReady, audioSource]
   );
 
   const handlePlayPause = useCallback(() => {
-    if (audioSource.isSpotify && spotifyPlayer.isReady) {
-      spotifyPlayer.togglePlay();
+    ambient.togglePlay();
+  }, [ambient]);
+
+  const handleSpotifyVolumeChange = useCallback(
+    (volume: number) => {
+      setSpotifyVolume(volume);
+      setSpotifyMuted(false);
+      spotifyPlayer.setVolume(volume);
+    },
+    [spotifyPlayer]
+  );
+
+  const handleSpotifyMuteToggle = useCallback(() => {
+    if (spotifyMuted) {
+      setSpotifyMuted(false);
+      setSpotifyVolume(spotifyVolumeBeforeMute.current);
+      spotifyPlayer.setVolume(spotifyVolumeBeforeMute.current);
     } else {
-      ambient.togglePlay();
+      spotifyVolumeBeforeMute.current = spotifyVolume;
+      setSpotifyMuted(true);
+      spotifyPlayer.setVolume(0);
     }
-  }, [audioSource.isSpotify, spotifyPlayer, ambient]);
+  }, [spotifyMuted, spotifyVolume, spotifyPlayer]);
 
   const handleSceneTap = useCallback(
     (e: React.MouseEvent) => {
@@ -331,7 +371,7 @@ export function SceneContainer() {
                     videoMode.videoEnabled &&
                     (index === (currentIndex + 1) % SCENES.length ||
                       index ===
-                        (currentIndex - 1 + SCENES.length) % SCENES.length)
+                      (currentIndex - 1 + SCENES.length) % SCENES.length)
                   }
                 />
               )}
@@ -376,17 +416,24 @@ export function SceneContainer() {
           onSpotifySelectorToggle={() =>
             setShowSpotifySelector((prev) => !prev)
           }
+          spotifyVolume={spotifyVolume}
+          spotifyMuted={spotifyMuted}
+          onSpotifyVolumeChange={handleSpotifyVolumeChange}
+          onSpotifyMuteToggle={handleSpotifyMuteToggle}
         />
 
         <SpotifySelector
           ref={spotifySelectorRef}
           isOpen={showSpotifySelector && isControlsVisible}
           isConnected={spotify.isConnected}
+          isPlayerReady={spotifyPlayer.isReady}
           accessToken={spotify.accessToken}
           onConnect={spotify.connect}
           onDisconnect={spotify.disconnect}
-          onSelectPlaylist={handleSelectPlaylist}
+          onSelectTrack={handleSelectTrack}
           activePlaylistUri={activePlaylistUri}
+          activeTrackUri={activeTrackUri}
+          queue={spotifyPlayer.queue}
         />
       </div>
 
@@ -415,6 +462,17 @@ export function SceneContainer() {
           artistName={spotifyPlayer.nowPlaying.artistName}
           albumArt={spotifyPlayer.nowPlaying.albumArt}
           isVisible={isControlsVisible}
+          isPlaying={spotifyPlayer.isPlaying}
+          onPlayPause={spotifyPlayer.togglePlay}
+          onPrevious={spotifyPlayer.previousTrack}
+          onNext={spotifyPlayer.nextTrack}
+          shuffleActive={spotifyPlayer.shuffleActive}
+          onShuffleToggle={spotifyPlayer.toggleShuffle}
+          repeatMode={spotifyPlayer.repeatMode}
+          onRepeatCycle={spotifyPlayer.cycleRepeat}
+          position={spotifyPlayer.position}
+          duration={spotifyPlayer.duration}
+          onSeek={spotifyPlayer.seek}
         />
       )}
 

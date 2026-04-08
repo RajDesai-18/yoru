@@ -23,6 +23,8 @@ export interface SpotifyPlaybackState {
   paused: boolean;
   position: number;
   duration: number;
+  shuffle: boolean;
+  repeat_mode: 0 | 1 | 2;
   track_window: {
     current_track: SpotifyTrack;
     next_tracks: SpotifyTrack[];
