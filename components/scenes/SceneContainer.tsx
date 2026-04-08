@@ -285,9 +285,12 @@ export function SceneContainer() {
       onSwipeStart: handleSwipeVolumeStart,
     });
 
+  const handleIdle = useCallback(() => setIsControlsVisible(false), []);
+  const handleActive = useCallback(() => setIsControlsVisible(true), []);
+
   useIdleDetection({
-    onIdle: () => setIsControlsVisible(false),
-    onActive: () => setIsControlsVisible(true),
+    onIdle: handleIdle,
+    onActive: handleActive,
     timeout: 3000,
     enabled: true,
   });
