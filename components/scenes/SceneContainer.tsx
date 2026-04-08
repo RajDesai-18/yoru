@@ -146,8 +146,12 @@ export function SceneContainer() {
   );
 
   const handlePlayPause = useCallback(() => {
-    ambient.togglePlay();
-  }, [ambient]);
+    if (audioSource.isSpotify && spotifyPlayer.isReady) {
+      spotifyPlayer.togglePlay();
+    } else {
+      ambient.togglePlay();
+    }
+  }, [audioSource.isSpotify, spotifyPlayer, ambient]);
 
   const handleSpotifyVolumeChange = useCallback(
     (volume: number) => {
