@@ -142,16 +142,17 @@ export function SceneContainer() {
         console.error("Failed to start playback:", err);
       }
     },
-    [spotify.accessToken, spotifyPlayer.deviceId, spotifyPlayer.isReady, audioSource]
+    [
+      spotify.accessToken,
+      spotifyPlayer.deviceId,
+      spotifyPlayer.isReady,
+      audioSource,
+    ]
   );
 
   const handlePlayPause = useCallback(() => {
-    if (audioSource.isSpotify && spotifyPlayer.isReady) {
-      spotifyPlayer.togglePlay();
-    } else {
-      ambient.togglePlay();
-    }
-  }, [audioSource.isSpotify, spotifyPlayer, ambient]);
+    ambient.togglePlay();
+  }, [ambient]);
 
   const handleSpotifyVolumeChange = useCallback(
     (volume: number) => {
@@ -347,9 +348,7 @@ export function SceneContainer() {
     markInstructionsSeen();
   }, [markInstructionsSeen]);
 
-  const isPlaying = audioSource.isSpotify
-    ? spotifyPlayer.isPlaying
-    : ambient.isPlaying;
+  const isPlaying = ambient.isPlaying;
 
   return (
     <div

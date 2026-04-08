@@ -60,27 +60,46 @@ export function NowPlaying({
   const progressBarRef = useRef<HTMLDivElement>(null);
   const progress = duration > 0 ? (position / duration) * 100 : 0;
 
-  const handleSeek = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!progressBarRef.current || duration === 0) return;
+  const getSeekPosition = useCallback(
+    (clientX: number) => {
+      if (!progressBarRef.current || duration === 0) return null;
       const rect = progressBarRef.current.getBoundingClientRect();
       const fraction = Math.max(
         0,
-        Math.min(1, (e.clientX - rect.left) / rect.width)
+        Math.min(1, (clientX - rect.left) / rect.width)
       );
-      onSeek(Math.floor(fraction * duration));
+      return Math.floor(fraction * duration);
     },
-    [duration, onSeek]
+    [duration]
+  );
+
+  const handleSeekClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const pos = getSeekPosition(e.clientX);
+      if (pos !== null) onSeek(pos);
+    },
+    [getSeekPosition, onSeek]
+  );
+
+  const handleSeekTouch = useCallback(
+    (e: React.TouchEvent<HTMLDivElement>) => {
+      const touch = e.touches[0];
+      if (!touch) return;
+      const pos = getSeekPosition(touch.clientX);
+      if (pos !== null) onSeek(pos);
+    },
+    [getSeekPosition, onSeek]
   );
 
   return (
     <div
       className={`
-        fixed top-6 left-6 z-30
+        fixed top-4 left-4 right-4 sm:right-auto sm:left-6 sm:top-6 z-30
         bg-black/40 backdrop-blur-md
         border border-white/10 rounded-2xl
-        p-4
+        p-3 sm:p-4
         transition-all duration-500
+        sm:w-80
         ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"}
       `}
     >
@@ -92,15 +111,15 @@ export function NowPlaying({
             alt=""
             width={56}
             height={56}
-            className="h-14 w-14 rounded-xl object-cover shadow-lg border border-white/10"
+            className="h-11 w-11 sm:h-14 sm:w-14 rounded-xl object-cover shadow-lg border border-white/10 shrink-0"
             unoptimized
           />
         ) : (
-          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/5 border border-white/10">
+          <div className="flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center rounded-xl bg-white/5 border border-white/10 shrink-0">
             <Music size={22} className="text-white/30" />
           </div>
         )}
-        <div className="min-w-0 max-w-44">
+        <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium text-white/90">
             {trackName}
           </p>
@@ -109,10 +128,10 @@ export function NowPlaying({
       </div>
 
       {/* Transport controls */}
-      <div className="mt-3 flex items-center justify-center gap-3">
+      <div className="mt-3 flex items-center justify-center gap-2 sm:gap-3">
         <button
           onClick={onShuffleToggle}
-          className={`rounded-lg p-1.5 transition-colors hover:bg-white/10 ${shuffleActive ? "text-[#1DB954]" : "text-white/30"
+          className={`rounded-lg min-h-10 min-w-10 sm:min-h-auto sm:min-w-auto sm:p-1.5 flex items-center justify-center transition-colors hover:bg-white/10 ${shuffleActive ? "text-[#1DB954]" : "text-white/30"
             }`}
           aria-label={shuffleActive ? "Disable shuffle" : "Enable shuffle"}
         >
@@ -120,28 +139,28 @@ export function NowPlaying({
         </button>
         <button
           onClick={onPrevious}
-          className="rounded-lg p-1.5 text-white/50 transition-colors hover:bg-white/10 hover:text-white/80"
+          className="rounded-lg min-h-10 min-w-10 sm:min-h-auto sm:min-w-auto sm:p-1.5 flex items-center justify-center text-white/50 transition-colors hover:bg-white/10 hover:text-white/80"
           aria-label="Previous track"
         >
           <SkipBack size={17} />
         </button>
         <button
           onClick={onPlayPause}
-          className="rounded-full bg-white/10 p-2 text-white/80 transition-colors hover:bg-white/20 hover:text-white"
+          className="rounded-full bg-white/10 min-h-11 min-w-11 flex items-center justify-center text-white/80 transition-colors hover:bg-white/20 hover:text-white"
           aria-label={isPlaying ? "Pause" : "Play"}
         >
           {isPlaying ? <Pause size={18} /> : <Play size={18} />}
         </button>
         <button
           onClick={onNext}
-          className="rounded-lg p-1.5 text-white/50 transition-colors hover:bg-white/10 hover:text-white/80"
+          className="rounded-lg min-h-10 min-w-10 sm:min-h-auto sm:min-w-auto sm:p-1.5 flex items-center justify-center text-white/50 transition-colors hover:bg-white/10 hover:text-white/80"
           aria-label="Next track"
         >
           <SkipForward size={17} />
         </button>
         <button
           onClick={onRepeatCycle}
-          className={`rounded-lg p-1.5 transition-colors hover:bg-white/10 ${repeatMode !== "off" ? "text-[#1DB954]" : "text-white/30"
+          className={`rounded-lg min-h-10 min-w-10 sm:min-h-auto sm:min-w-auto sm:p-1.5 flex items-center justify-center transition-colors hover:bg-white/10 ${repeatMode !== "off" ? "text-[#1DB954]" : "text-white/30"
             }`}
           aria-label={`Repeat: ${repeatMode}`}
         >
@@ -156,8 +175,10 @@ export function NowPlaying({
         </span>
         <div
           ref={progressBarRef}
-          onClick={handleSeek}
-          className="group relative h-1 flex-1 cursor-pointer rounded-full bg-white/10"
+          onClick={handleSeekClick}
+          onTouchMove={handleSeekTouch}
+          onTouchStart={handleSeekTouch}
+          className="group relative h-2 sm:h-1 flex-1 cursor-pointer rounded-full bg-white/10"
           role="slider"
           aria-label="Seek"
           aria-valuemin={0}
@@ -169,8 +190,8 @@ export function NowPlaying({
             style={{ width: `${progress}%` }}
           />
           <div
-            className="absolute top-1/2 -translate-y-1/2 h-2.5 w-2.5 rounded-full bg-white/60 opacity-0 transition-opacity group-hover:opacity-100"
-            style={{ left: `calc(${progress}% - 5px)` }}
+            className="absolute top-1/2 -translate-y-1/2 h-3 w-3 sm:h-2.5 sm:w-2.5 rounded-full bg-white/60 opacity-0 transition-opacity group-hover:opacity-100 sm:group-hover:opacity-100"
+            style={{ left: `calc(${progress}% - 6px)` }}
           />
         </div>
         <span className="text-[10px] tabular-nums text-white/25 w-8">
