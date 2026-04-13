@@ -20,35 +20,52 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://yoru-sandy.vercel.app"),
   title: "Yoru — Cinematic Ambient Station",
   description:
     "An immersive ambient music experience with anime-style visuals and layered soundscapes. The UI disappears, and the atmosphere takes over.",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "black-translucent",
-    title: "Yoru",
-  },
-  icons: {
-    icon: [
-      { url: "./favicon.png", sizes: "32x32", type: "image/png" },
-      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
-    ],
-    apple: "/apple-icon.png",
-  },
+
   openGraph: {
     title: "Yoru — Cinematic Ambient Station",
     description:
       "An immersive ambient music experience with anime-style visuals and layered soundscapes.",
+    url: "https://yoru-sandy.vercel.app",
     siteName: "Yoru",
     type: "website",
     locale: "en_US",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Yoru — Cinematic Ambient Station",
+      },
+    ],
   },
+
   twitter: {
     card: "summary_large_image",
     title: "Yoru — Cinematic Ambient Station",
     description:
       "An immersive ambient music experience with anime-style visuals and layered soundscapes.",
+    images: ["/og-image.png"],
+  },
+
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png" }],
+  },
+
+  manifest: "/site.webmanifest",
+
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Yoru",
   },
 };
 
